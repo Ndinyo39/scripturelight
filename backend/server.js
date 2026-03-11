@@ -42,9 +42,14 @@ app.use(async (req, res, next) => {
     }
 });
 
-// === 4. LAZY ROUTES ===
-// This prevents top-level crashes if a route file has a bug
-app.use('/api/auth', (req, res, next) => require('./routes/auth')(req, res, next));
+app.use('/api/auth', (req, res, next) => {
+    try {
+        return require('./routes/auth')(req, res, next);
+    } catch (err) {
+        console.error('Lazy load /api/auth failed:', err);
+        res.status(500).json({ error: 'Failed to load auth routes', details: err.message });
+    }
+});
 app.use('/api/community', (req, res, next) => require('./routes/community')(req, res, next));
 app.use('/api/study', (req, res, next) => require('./routes/study')(req, res, next));
 app.use('/api/testimonies', (req, res, next) => require('./routes/testimonies')(req, res, next));
