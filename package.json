@@ -1,0 +1,11 @@
+{
+  "name": "scripturelight",
+  "private": true,
+  "workspaces": [
+    "frontend-react",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces"
+  }
+}
