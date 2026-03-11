@@ -1,71 +1,59 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { connectDB } = require('./config/database');
-const path = require('path');
-
 const app = express();
 
-// === CORS CONFIGURATION ===
-app.use(cors({
-    origin: function (origin, callback) {
-        if (!origin) return callback(null, true);
-        return callback(null, true);
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
-
-// === HEALTH CHECK (BEFORE DB) ===
+// === 1. HEALTH CHECK (ABSOLUTE TOP) ===
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
+// === 2. CORS & MIDDLEWARE ===
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
+app.use(express.json());
+
+// === 3. LAZY DATABASE CONNECTION ===
 let isConnected = false;
 const connectOnce = async () => {
     if (!isConnected) {
+        // Only require DB config when needed
+        const { connectDB } = require('./config/database');
         await connectDB();
         isConnected = true;
     }
 };
 
-// Middleware to ensure DB is connected (except for health check)
 app.use(async (req, res, next) => {
-    if (req.path === '/api/health') return next();
+    // Skip DB check for health
+    if (req.path === '/api/health' || req.path === '/api/test') return next();
+    
     try {
         await connectOnce();
         next();
     } catch (err) {
-        console.error('Failed to connect to database:', err.message);
+        console.error('Database connection failed:', err.message);
         res.status(500).json({ 
             error: 'Database connection failed', 
-            details: err.message,
-            hint: 'Ensure DATABASE_URL is set correctly in Vercel settings.'
+            details: err.message
         });
     }
 });
 
-// Middleware
-app.use(express.json());
-
-// Log all requests for debugging
-app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} ${req.method} ${req.url}`);
-    next();
-});
-
-// === ROUTES ===
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/community', require('./routes/community'));
-app.use('/api/study', require('./routes/study'));
-app.use('/api/testimonies', require('./routes/testimonies'));
-app.use('/api/comments', require('./routes/comments'));
-app.use('/api/bible', require('./routes/bible'));
-app.use('/api/groups', require('./routes/groups'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/books', require('./routes/books'));
-app.use('/api/users', require('./routes/users'));
+// === 4. LAZY ROUTES ===
+// This prevents top-level crashes if a route file has a bug
+app.use('/api/auth', (req, res, next) => require('./routes/auth')(req, res, next));
+app.use('/api/community', (req, res, next) => require('./routes/community')(req, res, next));
+app.use('/api/study', (req, res, next) => require('./routes/study')(req, res, next));
+app.use('/api/testimonies', (req, res, next) => require('./routes/testimonies')(req, res, next));
+app.use('/api/comments', (req, res, next) => require('./routes/comments')(req, res, next));
+app.use('/api/bible', (req, res, next) => require('./routes/bible')(req, res, next));
+app.use('/api/groups', (req, res, next) => require('./routes/groups')(req, res, next));
+app.use('/api/admin', (req, res, next) => require('./routes/admin')(req, res, next));
+app.use('/api/books', (req, res, next) => require('./routes/books')(req, res, next));
+app.use('/api/users', (req, res, next) => require('./routes/users')(req, res, next));
 
 // Serve uploaded book files statically
 app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));
