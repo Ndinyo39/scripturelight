@@ -55,15 +55,21 @@ const connectDB = async () => {
         console.log(`${isPostgres ? 'Supabase PostgreSQL' : 'SQLite'} Connected successfully.`);
         
         // Sync models
-        await sequelize.sync({ alter: true });
-        console.log('Database models synced');
+        // In serverless, we only sync if we are in development or if a forced sync variable is true
+        // This prevents multiple heavy operations on every cold start
+        if (process.env.NODE_ENV !== 'production' || process.env.SYNC_DB === 'true') {
+            await sequelize.sync({ alter: true });
+            console.log('Database models synced');
 
-        // Seed initial data
-        const seedData = require('./seed');
-        await seedData();
+            // Seed initial data
+            const seedData = require('./seed');
+            await seedData();
+        }
     } catch (error) {
         console.error('Database connection error:', error.message);
-        process.exit(1);
+        // Don't process.exit(1) in a serverless environment as it causes a 500 error
+        // instead just throw the error so the request handler can catch it
+        throw error;
     }
 };
 

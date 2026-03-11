@@ -6,8 +6,24 @@ const path = require('path');
 
 const app = express();
 
-// Connect to Database
-connectDB();
+let isConnected = false;
+const connectOnce = async () => {
+    if (!isConnected) {
+        await connectDB();
+        isConnected = true;
+    }
+};
+
+// Middleware to ensure DB is connected
+app.use(async (req, res, next) => {
+    try {
+        await connectOnce();
+        next();
+    } catch (err) {
+        console.error('Failed to connect to database:', err.message);
+        res.status(500).json({ error: 'Database connection failed', details: err.message });
+    }
+});
 
 // === FIXED CORS CONFIGURATION ===
 app.use(cors({
