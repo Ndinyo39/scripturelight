@@ -15,6 +15,24 @@ const apiRequest = async (endpoint, options = {}) => {
     headers,
   });
 
+  // Auto-logout on authentication failures (stale/invalid tokens)
+  if (response.status === 401 || response.status === 403) {
+    const errorData = await response.json().catch(() => ({}));
+    const msg = errorData.message || '';
+    // Only clear session on true auth failures, not "pending account" messages
+    if (msg.includes('not valid') || msg.includes('No token') || msg.includes('denied')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('isLoggedIn');
+      // Redirect to login only if not already there
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
+      throw new Error('Session expired. Please log in again.');
+    }
+    throw new Error(msg || 'Access denied');
+  }
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Something went wrong' }));
     throw new Error(error.message || 'API request failed');
