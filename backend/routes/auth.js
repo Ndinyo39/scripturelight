@@ -175,15 +175,15 @@ router.get('/me', auth, async (req, res) => {
                 exclude: ['password'],
                 include: [
                     [
-                        sequelize.literal(`(SELECT COUNT(*) FROM CommunityPosts WHERE userId = User.id)`),
+                        sequelize.literal(`(SELECT COUNT(*) FROM "CommunityPosts" WHERE "userId" = "User"."id")`),
                         'postsCount'
                     ],
                     [
-                        sequelize.literal(`(SELECT COUNT(*) FROM Testimonies WHERE userId = User.id)`),
+                        sequelize.literal(`(SELECT COUNT(*) FROM "Testimonies" WHERE "userId" = "User"."id")`),
                         'testimoniesCount'
                     ],
                     [
-                        sequelize.literal(`(SELECT COUNT(*) FROM Comments WHERE userId = User.id)`),
+                        sequelize.literal(`(SELECT COUNT(*) FROM "Comments" WHERE "userId" = "User"."id")`),
                         'commentsCount'
                     ]
                 ]
