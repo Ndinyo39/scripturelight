@@ -1,5 +1,6 @@
 const { Sequelize } = require('sequelize');
 const path = require('path');
+const pg = require('pg');
 
 let sequelize = null;
 let initError = null;
@@ -35,6 +36,7 @@ const initSequelize = () => {
                 host: dbHost,
                 port: dbPort,
                 dialect: 'postgres',
+                dialectModule: pg,
                 dialectOptions: {
                     ssl: {
                         require: true,
