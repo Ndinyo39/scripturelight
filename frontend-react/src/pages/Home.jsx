@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../api';
 import './Home.css';
 
 const verseOfTheDay = {
@@ -21,12 +22,7 @@ const verseOfTheDay = {
   ref: "Jeremiah 29:11 (NIV)"
 };
 
-const stats = [
-  { value: "12K+", label: "Scripture Readers" },
-  { value: "450+", label: "Study Plans Completed" },
-  { value: "2K+", label: "Testimonies Shared" },
-  { value: "99+", label: "Prayer Requests" }
-];
+
 
 const features = [
   {
@@ -80,6 +76,31 @@ const testimonialSnippets = [
 const Home = () => {
   const { isLoggedIn, user } = useAuth();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [realStats, setRealStats] = useState({
+    users: 0,
+    testimonies: 0,
+    prayers: 0,
+    groups: 0
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await api.get('/stats');
+        setRealStats(data);
+      } catch (err) {
+        console.error('Failed to fetch home stats:', err);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  const stats = [
+    { value: realStats.users.toLocaleString(), label: "Scripture Readers" },
+    { value: realStats.groups > 0 ? `${realStats.groups}+` : "0", label: "Fellowship Groups" },
+    { value: realStats.testimonies.toLocaleString(), label: "Testimonies Shared" },
+    { value: realStats.prayers.toLocaleString(), label: "Prayer Requests" }
+  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -129,7 +150,7 @@ const Home = () => {
                 </Link>
               )}
             </div>
-            <p className="hero-footnote">No subscription required · Free forever · Join 12,000+ believers</p>
+            <p className="hero-footnote">No subscription required · Free forever · Join {realStats.users.toLocaleString()}+ believers</p>
           </motion.div>
         </div>
 

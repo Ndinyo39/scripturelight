@@ -70,6 +70,7 @@ app.use('/api/groups', (req, res, next) => require('./routes/groups')(req, res, 
 app.use('/api/admin', (req, res, next) => require('./routes/admin')(req, res, next));
 app.use('/api/books', (req, res, next) => require('./routes/books')(req, res, next));
 app.use('/api/users', (req, res, next) => require('./routes/users')(req, res, next));
+app.use('/api/stats', (req, res, next) => require('./routes/stats')(req, res, next));
 
 // Serve uploaded book files statically
 app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));

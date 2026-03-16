@@ -1,0 +1,26 @@
+const express = require('express');
+const router = express.Router();
+const { User, Testimony, CommunityPost, BibleGroup } = require('../models');
+
+router.get('/', async (req, res) => {
+    try {
+        const [usersCount, testimoniesCount, postsCount, groupsCount] = await Promise.all([
+            User.count(),
+            Testimony.count({ where: { status: 'active' } }),
+            CommunityPost.count(),
+            BibleGroup.count()
+        ]);
+
+        res.json({
+            users: usersCount,
+            testimonies: testimoniesCount,
+            prayers: postsCount,
+            groups: groupsCount
+        });
+    } catch (err) {
+        console.error('Stats fetch failed:', err);
+        res.status(500).json({ message: 'Failed to fetch statistics' });
+    }
+});
+
+module.exports = router;
