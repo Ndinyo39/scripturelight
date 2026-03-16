@@ -15,6 +15,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { api } from '../api';
+import { getImageUrl } from '../utils/imageUrl';
 import './BooksLibrary.css';
 
 const CATEGORIES = [
@@ -65,12 +66,6 @@ const BooksLibrary = () => {
         setSelectedFile(e.target.files[0]);
     };
 
-    const getImageUrl = (path) => {
-        if (!path) return null;
-        if (path.startsWith('http')) return path;
-        const baseUrl = import.meta.env.MODE === 'production' ? '' : 'http://localhost:5000';
-        return `${baseUrl}/${path}`;
-    };
 
     const handleUpload = async (e) => {
         e.preventDefault();
@@ -90,7 +85,8 @@ const BooksLibrary = () => {
             formData.append('coverColor', uploadData.coverColor);
 
             const token = localStorage.getItem('token');
-            const baseUrl = import.meta.env.MODE === 'production' ? '' : 'http://localhost:5000';
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const baseUrl = isLocal ? 'http://localhost:5000' : '';
             const response = await fetch(`${baseUrl}/api/books/upload`, {
                 method: 'POST',
                 headers: {
@@ -125,7 +121,8 @@ const BooksLibrary = () => {
     };
 
     const handleDownload = (bookId, title) => {
-        const baseUrl = import.meta.env.MODE === 'production' ? '' : 'http://localhost:5000';
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const baseUrl = isLocal ? 'http://localhost:5000' : '';
         const url = `${baseUrl}/api/books/${bookId}/download`;
         
         // Use a hidden anchor tag to trigger download
@@ -138,7 +135,8 @@ const BooksLibrary = () => {
     };
 
     const handleRead = (bookId) => {
-        const baseUrl = import.meta.env.MODE === 'production' ? '' : 'http://localhost:5000';
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const baseUrl = isLocal ? 'http://localhost:5000' : '';
         const url = `${baseUrl}/api/books/${bookId}/read`;
         window.open(url, '_blank');
     };

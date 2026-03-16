@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Camera, User, Mail, Shield, Save, Loader2, Edit3, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
+import { getImageUrl } from '../utils/imageUrl';
 import './Profile.css';
 
 const Profile = () => {
@@ -11,12 +12,6 @@ const Profile = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     
-    const getImageUrl = (path) => {
-        if (!path) return null;
-        if (path.startsWith('http')) return path;
-        const baseUrl = import.meta.env.MODE === 'production' ? '' : 'http://localhost:5000';
-        return `${baseUrl}/${path}`;
-    };
 
     const [formData, setFormData] = useState({
         name: user?.name || '',
@@ -64,7 +59,8 @@ const Profile = () => {
             }
 
             // Using fetch directly for FormData to avoid axios/api JSON default headers
-            const baseUrl = import.meta.env.MODE === 'production' ? '' : 'http://localhost:5000';
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const baseUrl = isLocal ? 'http://localhost:5000' : '';
             const response = await fetch(`${baseUrl}/api/auth/profile`, {
                 method: 'PUT',
                 headers: {

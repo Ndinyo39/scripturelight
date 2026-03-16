@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Book, Menu, X, LayoutDashboard, LogOut, User as UserIcon, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { getImageUrl } from '../utils/imageUrl';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -43,12 +44,6 @@ const Navbar = () => {
     navLinks.push({ name: '🛡️ Admin Panel', path: '/admin' });
   }
 
-  const getImageUrl = (path) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    const baseUrl = import.meta.env.MODE === 'production' ? '' : 'http://localhost:5000';
-    return `${baseUrl}/${path}`;
-  };
 
   return (
     <nav className={`navbar ${scrolled ? 'scrolled shadow' : ''}`}>

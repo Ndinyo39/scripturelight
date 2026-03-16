@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, MessageSquare, Award, Calendar, BookOpen, Loader2, ChevronLeft } from 'lucide-react';
 import { api } from '../api';
+import { getImageUrl } from '../utils/imageUrl';
 import './UserProfile.css';
 
 const UserProfile = () => {
@@ -39,12 +40,6 @@ const UserProfile = () => {
         </div>
     );
 
-    const getImageUrl = (path) => {
-        if (!path) return null;
-        if (path.startsWith('http')) return path;
-        const baseUrl = import.meta.env.MODE === 'production' ? '' : 'http://localhost:5000';
-        return `${baseUrl}/${path}`;
-    };
 
     const { user, posts } = data;
 

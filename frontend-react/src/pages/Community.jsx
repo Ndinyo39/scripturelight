@@ -23,6 +23,7 @@ import {
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import BooksLibrary from '../components/BooksLibrary';
+import { getImageUrl } from '../utils/imageUrl';
 import './Community.css';
 
 const Community = () => {
@@ -57,12 +58,6 @@ const Community = () => {
     topic: '',
   });
 
-  const getImageUrl = (path) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    const baseUrl = import.meta.env.MODE === 'production' ? '' : 'http://localhost:5000';
-    return `${baseUrl}/${path}`;
-  };
 
   useEffect(() => {
     if (activeTab === 'feed') {

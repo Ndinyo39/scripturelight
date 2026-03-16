@@ -11,6 +11,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { api } from '../api';
+import { getImageUrl } from '../utils/imageUrl';
 import './Testimonies.css';
 
 const Testimonies = () => {
@@ -28,12 +29,6 @@ const Testimonies = () => {
   const [testimonyComments, setTestimonyComments] = useState({});
   const [commentInputs, setCommentInputs] = useState({});
 
-  const getImageUrl = (path) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    const baseUrl = import.meta.env.MODE === 'production' ? '' : 'http://localhost:5000';
-    return `${baseUrl}/${path}`;
-  };
 
   const toggleComments = async (id) => {
     const isExpanding = !expandedComments[id];
