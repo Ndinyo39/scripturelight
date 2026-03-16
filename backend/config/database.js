@@ -3,15 +3,21 @@ const path = require('path');
 
 let sequelize;
 
-const dbUrl = process.env.DATABASE_URL ? process.env.DATABASE_URL.trim() : null;
+let dbUrl = process.env.DATABASE_URL ? process.env.DATABASE_URL.trim() : null;
+
+// Aggressively strip trailing backslashes or quotes that might have been copy-pasted
+if (dbUrl) {
+    dbUrl = dbUrl.replace(/[\\'"]+$/, '').trim();
+}
 
 if (dbUrl) {
     console.log('Database URL detected, initializing Sequelize...');
-    // Log length and first few chars for debugging (safely)
-    console.log(`DB URL Length: ${dbUrl.length}, Scheme: ${dbUrl.split(':')[0]}`);
-    
     try {
+        // Simple validation check
+        new URL(dbUrl);
+        
         sequelize = new Sequelize(dbUrl, {
+            dialect: 'postgres', // Explicitly set dialect
             dialectOptions: {
                 ssl: {
                     require: true,
@@ -21,7 +27,7 @@ if (dbUrl) {
             logging: false
         });
     } catch (err) {
-        console.error('CRITICAL: Sequelize initialization failed:', err.message);
+        console.error('CRITICAL: Database URL is invalid or Sequelize initialization failed:', err.message);
     }
 } else if (process.env.NODE_ENV !== 'production') {
     console.log('Using SQLite for development...');
