@@ -3,12 +3,21 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
+// === GLOBAL ENV SANITIZATION (Fix for 'Port number ended with \') ===
+for (const key in process.env) {
+    if (typeof process.env[key] === 'string' && process.env[key].includes('\\')) {
+        // console.log(`Sanitizing env var: ${key}`);
+        process.env[key] = process.env[key].replace(/[\\]+/g, '').trim();
+    }
+}
+
 // === 1. HEALTH CHECK (ABSOLUTE TOP) ===
 app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'ok', 
         time: new Date().toISOString(),
-        node: process.version
+        node: process.version,
+        env: process.env.NODE_ENV
     });
 });
 
@@ -16,14 +25,26 @@ app.get('/api/health', (req, res) => {
 app.get('/api/db-test', async (req, res) => {
     try {
         const { sequelize } = require('./config/database');
+        if (!sequelize) {
+            return res.status(500).json({ status: 'error', message: 'Sequelize not initialized' });
+        }
         await sequelize.authenticate();
-        res.json({ status: 'connected', dialect: sequelize.getDialect() });
+        res.json({ 
+            status: 'connected', 
+            dialect: sequelize.getDialect(),
+            database: sequelize.getDatabaseName()
+        });
     } catch (err) {
-        console.error('DB Test Failed:', err.message);
+        console.error('DB Test Failed:', err);
         res.status(500).json({ 
             status: 'failed', 
             error: err.message,
-            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+            code: err.code,
+            original: err.original ? {
+                message: err.original.message,
+                code: err.original.code,
+                stack: err.original.stack
+            } : null
         });
     }
 });
