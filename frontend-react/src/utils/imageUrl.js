@@ -10,5 +10,7 @@ export const getImageUrl = (filePath) => {
     }
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const baseUrl = isLocal ? 'http://localhost:5000' : '';
-    return `${baseUrl}/${filePath}`.replace(/\/\//g, '/').replace(':/', '://');
+    // Ensure exactly one slash between base and path
+    const cleanPath = filePath.startsWith('/') ? filePath : `/${filePath}`;
+    return `${baseUrl}${cleanPath}`;
 };

@@ -59,6 +59,7 @@ const Profile = () => {
             }
 
             // Using fetch directly for FormData to avoid axios/api JSON default headers
+            const token = localStorage.getItem('token');
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const baseUrl = isLocal ? 'http://localhost:5000' : '';
             const response = await fetch(`${baseUrl}/api/auth/profile`, {
