@@ -9,15 +9,37 @@ const { sequelize } = require('../config/database');
 router.post('/record-progress', auth, async (req, res) => {
     try {
         const { book, chapter, minutesSpent } = req.body;
+        const userId = req.user.id;
         
         const activity = await BibleActivity.create({
-            userId: req.user.id,
+            userId,
             book,
             chapter,
             minutesSpent: minutesSpent || 5
         });
 
-        res.json({ message: 'Progress recorded successfully', activity });
+        // Update User Streak
+        const user = await User.findByPk(userId);
+        if (user) {
+            const today = new Date().toISOString().split('T')[0];
+            const lastRead = user.lastLogin ? new Date(user.lastLogin).toISOString().split('T')[0] : null;
+            
+            if (lastRead !== today) {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+                
+                if (lastRead === yesterdayStr) {
+                    user.streak += 1;
+                } else {
+                    user.streak = 1;
+                }
+                user.lastLogin = new Date(); // Update lastLogin to track activity
+                await user.save();
+            }
+        }
+
+        res.json({ message: 'Progress recorded successfully', activity, streak: user?.streak });
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
@@ -28,6 +50,7 @@ router.post('/record-progress', auth, async (req, res) => {
 router.get('/stats', auth, async (req, res) => {
     try {
         const userId = req.user.id;
+        const user = await User.findByPk(userId);
         
         // Total stats
         const allActivities = await BibleActivity.findAll({
@@ -36,6 +59,7 @@ router.get('/stats', auth, async (req, res) => {
 
         const totalChapters = allActivities.length;
         const totalMinutes = allActivities.reduce((sum, a) => sum + (a.minutesSpent || 0), 0);
+        const totalHours = Math.round(totalMinutes / 60);
         
         // Weekly chart data (last 7 days)
         const sevenDaysAgo = new Date();
@@ -75,7 +99,10 @@ router.get('/stats', auth, async (req, res) => {
         }
 
         res.json({
+            streak: user?.streak || 0,
+            completedPlans: user?.completedPlansCount || 0,
             totalChapters,
+            totalHours,
             totalMinutes,
             chartData
         });

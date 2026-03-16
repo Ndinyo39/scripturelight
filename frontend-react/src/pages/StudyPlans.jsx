@@ -25,10 +25,27 @@ const StudyPlans = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userStats, setUserStats] = useState({
+    streak: 0,
+    completedPlans: 0,
+    totalChapters: 0,
+    totalHours: 0
+  });
   
   useEffect(() => {
     loadPlans();
-  }, []);
+    loadUserStats();
+  }, [user]);
+
+  const loadUserStats = async () => {
+    if (!user) return;
+    try {
+      const statsData = await api.get('/bible/stats');
+      setUserStats(statsData);
+    } catch (err) {
+      console.error('Failed to load user stats:', err);
+    }
+  };
 
   const loadPlans = async () => {
     setLoading(true);
@@ -98,10 +115,10 @@ const StudyPlans = () => {
   };
 
   const stats = [
-    { label: "Day Streak", value: "7", icon: <Flame size={20} color="#ff9800" /> },
-    { label: "Plans Completed", value: "3", icon: <Trophy size={20} color="#fbc02d" /> },
-    { label: "Chapters Read", value: "128", icon: <BookOpen size={20} color="#4a6fa5" /> },
-    { label: "Hours of Study", value: "42", icon: <Clock size={20} color="#2a9d8f" /> }
+    { label: "Day Streak", value: userStats.streak, icon: <Flame size={20} color="#ff9800" /> },
+    { label: "Plans Completed", value: userStats.completedPlans, icon: <Trophy size={20} color="#fbc02d" /> },
+    { label: "Chapters Read", value: userStats.totalChapters, icon: <BookOpen size={20} color="#4a6fa5" /> },
+    { label: "Hours of Study", value: userStats.totalHours, icon: <Clock size={20} color="#2a9d8f" /> }
   ];
 
   return (

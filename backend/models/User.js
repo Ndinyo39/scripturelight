@@ -28,6 +28,10 @@ const User = sequelize.define('User', {
         type: DataTypes.INTEGER,
         defaultValue: 0
     },
+    completedPlansCount: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
     lastLogin: {
         type: DataTypes.DATE
     },
