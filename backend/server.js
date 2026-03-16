@@ -5,7 +5,18 @@ const app = express();
 
 // === 1. HEALTH CHECK (ABSOLUTE TOP) ===
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', time: new Date().toISOString() });
+    const dbUrl = process.env.DATABASE_URL || '';
+    const scheme = dbUrl.split(':')[0] || 'none';
+    res.json({ 
+        status: 'ok', 
+        time: new Date().toISOString(),
+        debug: {
+            urlLength: dbUrl.length,
+            urlScheme: scheme,
+            nodeVersion: process.version,
+            env: process.env.NODE_ENV
+        }
+    });
 });
 
 // === 2. CORS & MIDDLEWARE ===
