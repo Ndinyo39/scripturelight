@@ -13,11 +13,11 @@ if (dbUrl) {
 if (dbUrl) {
     console.log('Database URL detected, initializing Sequelize...');
     try {
-        // Simple validation check
-        new URL(dbUrl);
-        
-        sequelize = new Sequelize(dbUrl, {
-            dialect: 'postgres', // Explicitly set dialect
+        const parsedUrl = new URL(dbUrl);
+        const options = {
+            host: parsedUrl.hostname,
+            port: parsedUrl.port || 5432,
+            dialect: 'postgres',
             dialectOptions: {
                 ssl: {
                     require: true,
@@ -25,7 +25,17 @@ if (dbUrl) {
                 }
             },
             logging: false
-        });
+        };
+
+        // Initialize with components: database, username, password, options
+        sequelize = new Sequelize(
+            parsedUrl.pathname.substring(1), // remove leading /
+            parsedUrl.username,
+            decodeURIComponent(parsedUrl.password),
+            options
+        );
+        
+        console.log(`Sequelize initialized for host: ${options.host}:${options.port}`);
     } catch (err) {
         console.error('CRITICAL: Database URL is invalid or Sequelize initialization failed:', err.message);
     }
