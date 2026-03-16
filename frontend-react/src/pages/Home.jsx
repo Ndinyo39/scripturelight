@@ -96,10 +96,10 @@ const Home = () => {
   }, []);
 
   const stats = [
-    { value: realStats.users.toLocaleString(), label: "Scripture Readers" },
-    { value: realStats.groups > 0 ? `${realStats.groups}+` : "0", label: "Fellowship Groups" },
-    { value: realStats.testimonies.toLocaleString(), label: "Testimonies Shared" },
-    { value: realStats.prayers.toLocaleString(), label: "Prayer Requests" }
+    { value: (realStats?.users || 0).toLocaleString(), label: "Scripture Readers" },
+    { value: (realStats?.groups || 0) > 0 ? `${realStats.groups}+` : "0", label: "Fellowship Groups" },
+    { value: (realStats?.testimonies || 0).toLocaleString(), label: "Testimonies Shared" },
+    { value: (realStats?.prayers || 0).toLocaleString(), label: "Prayer Requests" }
   ];
 
   useEffect(() => {
@@ -150,7 +150,7 @@ const Home = () => {
                 </Link>
               )}
             </div>
-            <p className="hero-footnote">No subscription required · Free forever · Join {realStats.users.toLocaleString()}+ believers</p>
+            <p className="hero-footnote">No subscription required · Free forever · Join {(realStats?.users || 0).toLocaleString()}+ believers</p>
           </motion.div>
         </div>
 

@@ -154,7 +154,7 @@ function App() {
             </div>
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', textAlign: 'center', fontSize: '0.8rem' }}>
               <p style={{ marginBottom: '0.5rem', color: 'rgba(255,255,255,0.8)', fontWeight: '500' }}>
-                Join {stats.users.toLocaleString()}+ believers growing in faith with ScriptureLight 🙏
+                Join {(stats?.users || 0).toLocaleString()}+ believers growing in faith with ScriptureLight 🙏
               </p>
               <p>© 2026 ScriptureLight. All rights reserved.</p>
             </div>

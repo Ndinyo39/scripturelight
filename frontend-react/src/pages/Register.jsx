@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { UserPlus, Mail, Lock, User, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -68,7 +68,7 @@ const Register = () => {
             <UserPlus size={40} />
           </div>
           <h2>Join ScriptureLight</h2>
-          <p>Start your faith journey with us alongside {stats.users.toLocaleString()}+ other believers</p>
+          <p>Start your faith journey with us alongside {(stats?.users || 0).toLocaleString()}+ other believers</p>
         </div>
 
         {error && <div className="auth-error">{error}</div>}
