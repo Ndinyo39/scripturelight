@@ -6,7 +6,7 @@ router.get('/', async (req, res) => {
     try {
         const [usersCount, testimoniesCount, postsCount, groupsCount] = await Promise.all([
             User.count(),
-            Testimony.count({ where: { status: 'active' } }),
+            Testimony.count({ where: { status: 'approved' } }),
             CommunityPost.count(),
             BibleGroup.count()
         ]);
