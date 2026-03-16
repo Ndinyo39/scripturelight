@@ -3,12 +3,15 @@ const path = require('path');
 
 let sequelize;
 
-if (process.env.DATABASE_URL) {
+const dbUrl = process.env.DATABASE_URL ? process.env.DATABASE_URL.trim() : null;
+
+if (dbUrl) {
     console.log('Database URL detected, initializing Sequelize...');
+    // Log length and first few chars for debugging (safely)
+    console.log(`DB URL Length: ${dbUrl.length}, Scheme: ${dbUrl.split(':')[0]}`);
+    
     try {
-        sequelize = new Sequelize(process.env.DATABASE_URL, {
-            dialect: 'postgres',
-            protocol: 'postgres',
+        sequelize = new Sequelize(dbUrl, {
             dialectOptions: {
                 ssl: {
                     require: true,
