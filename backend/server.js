@@ -90,6 +90,29 @@ app.get('/api/test', (req, res) => {
     });
 });
 
+// === MANUAL DB FIX ROUTE (Robust) ===
+app.get('/api/db-fix-temp', async (req, res) => {
+    try {
+        console.log('--- MANUAL DB FIX STARTED ---');
+        const { sequelize } = require('./config/database');
+        // CRITICAL: Import all models so Sequelize knows they exist!
+        const models = require('./models');
+        console.log('Models loaded for sync:', Object.keys(models).join(', '));
+        
+        // Forcefully add missing columns
+        await sequelize.sync({ alter: true });
+        
+        console.log('--- MANUAL DB FIX COMPLETED ---');
+        res.json({ 
+            message: '✅ Success: Database columns updated!',
+            syncedModels: Object.keys(models)
+        });
+    } catch (err) {
+        console.error('Manual DB sync failed:', err);
+        res.status(500).json({ error: err.message, stack: err.stack });
+    }
+});
+
 // === CATCH-ALL ROUTE ===
 app.all('*', (req, res) => {
     res.status(404).json({
