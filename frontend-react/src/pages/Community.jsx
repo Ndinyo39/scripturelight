@@ -385,7 +385,7 @@ const Community = () => {
       >
         <div className="stat-pill">
           <span className="stat-dot green" />
-          <strong>{groups.reduce((a, g) => a + (g.memberCount || 0), 0) || '—'}</strong> believers connected
+          <strong>{onlineUsers.length || 0}</strong> believers connected
         </div>
         <div className="stat-pill">
           <span className="stat-dot blue" />
