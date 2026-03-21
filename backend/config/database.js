@@ -82,7 +82,7 @@ const connectDB = async () => {
         const isPostgres = sequelize.getDialect() === 'postgres';
         console.log(`${isPostgres ? 'Supabase PostgreSQL' : 'SQLite'} Connected successfully.`);
         
-        const shouldSync = process.env.SYNC_DB === 'true' || (process.env.NODE_ENV !== 'production' && process.env.SYNC_DB !== 'false');
+        const shouldSync = String(process.env.SYNC_DB).trim() === 'true' || (process.env.NODE_ENV !== 'production' && String(process.env.SYNC_DB).trim() !== 'false');
         if (shouldSync) {
             console.log('Syncing database models...');
             await sequelize.sync({ alter: true });

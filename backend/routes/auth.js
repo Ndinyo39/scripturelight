@@ -55,8 +55,8 @@ router.post('/register', [
             status: 'pending'
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Registration error:', error);
+        res.status(500).json({ message: 'Server error during registration: ' + error.message });
     }
 });
 
@@ -125,8 +125,8 @@ router.post('/login', [
             }
         );
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error during login: ' + error.message });
     }
 });
 
