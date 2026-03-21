@@ -8,6 +8,10 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+if (process.env.CLOUDINARY_CLOUD_NAME === 'ScriptureLight') {
+  console.warn('⚠️ WARNING: CLOUDINARY_CLOUD_NAME is set to "ScriptureLight". This is likely incorrect. Please find your actual Cloud Name in the Cloudinary Dashboard.');
+}
+
 const profileStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {

@@ -19,7 +19,7 @@ import { api } from './api';
 import UserProfile from './pages/UserProfile';
 
 import ProtectedRoute from './components/ProtectedRoute';
-import OnlineNotifier from './components/OnlineNotifier';
+import Footer from './components/Footer';
 
 function App() {
   const [stats, setStats] = useState({ users: 0 });
@@ -121,48 +121,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
         
-        <footer style={{ 
-          padding: '4rem 0 3rem', 
-          background: '#0f1b2d', 
-          marginTop: '4rem',
-          color: 'rgba(255,255,255,0.6)',
-          borderTop: '1px solid rgba(255,255,255,0.05)'
-        }}>
-          <div className="container">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
-                    <img src="/Logo.png" alt="Logo" style={{ height: '40px', width: 'auto' }} />
-                    <h3 style={{ color: 'white', margin: 0, fontSize: '1.1rem' }}>ScriptureLight</h3>
-                </div>
-                <p style={{ fontSize: '0.85rem', lineHeight: '1.6' }}>
-                  A faith-based platform for Bible study, spiritual growth, and community.
-                </p>
-              </div>
-              <div>
-                <h4 style={{ color: 'white', marginBottom: '0.75rem', fontSize: '0.9rem' }}>Explore</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.85rem' }}>
-                  <Link to="/bible" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Read Bible</Link>
-                  <Link to="/community" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Library & Groups</Link>
-                  <Link to="/testimonies" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Testimonies</Link>
-                </div>
-              </div>
-              <div>
-                <h4 style={{ color: 'white', marginBottom: '0.75rem', fontSize: '0.9rem' }}>Contact Us</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.85rem' }}>
-                  <span style={{ color: 'white' }}>📞 0795459080 / 0752 787 123</span>
-                  <a href="mailto:douglasndinyo5@gmail.com" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>📧 douglasndinyo5@gmail.com</a>
-                </div>
-              </div>
-            </div>
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', textAlign: 'center', fontSize: '0.8rem' }}>
-              <p style={{ marginBottom: '0.5rem', color: 'rgba(255,255,255,0.8)', fontWeight: '500' }}>
-                Join {(stats?.users || 0).toLocaleString()}+ believers growing in faith with ScriptureLight 🙏
-              </p>
-              <p>© 2026 ScriptureLight. All rights reserved.</p>
-            </div>
-          </div>
-        </footer>
+        <Footer stats={stats} />
       </div>
     </Router>
   );
