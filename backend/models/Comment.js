@@ -26,7 +26,7 @@ const Comment = sequelize.define('Comment', {
     },
     status: {
         type: DataTypes.ENUM('pending', 'approved', 'rejected'),
-        defaultValue: 'pending'
+        defaultValue: 'approved'
     }
 });
 

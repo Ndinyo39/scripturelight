@@ -11,7 +11,8 @@ import {
   PlusCircle,
   Loader2,
   ChevronRight,
-  Download
+  Download,
+  ShieldCheck
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -93,6 +94,17 @@ const Dashboard = () => {
         <div className="welcome-text">
           <h1>Welcome back, {userData.name}!</h1>
           <p>Here's your spiritual journey progress for today.</p>
+          {(userData.role === 'admin' || authUser?.role === 'admin') && (
+            <Link to="/admin" className="admin-status-badge mt-2" style={{ 
+              display: 'inline-flex', alignItems: 'center', gap: '8px', 
+              background: 'rgba(212, 175, 55, 0.1)', color: '#D4AF37', 
+              padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem',
+              border: '1px solid rgba(212, 175, 55, 0.3)', textDecoration: 'none',
+              marginTop: '10px'
+            }}>
+              <ShieldCheck size={16} /> 🛡️ Admin Control Board Access Verified
+            </Link>
+          )}
         </div>
         <div className="streak-badge">
           <div className="streak-label">Current Streak</div>
@@ -141,7 +153,7 @@ const Dashboard = () => {
               ) : (
                 <div className="no-plan text-center p-4">
                   <p>No active study plan found.</p>
-                  <a href="/study-plans" className="btn-outline btn-sm mt-2" style={{ display: 'inline-block' }}>Find a Plan</a>
+                  <Link to="/study-plans" className="btn-outline btn-sm mt-2" style={{ display: 'inline-block' }}>Find a Plan</Link>
                 </div>
               )}
             </div>

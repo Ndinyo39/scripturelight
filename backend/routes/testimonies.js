@@ -1,14 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const { Testimony, User } = require('../models');
+const { Testimony, User, Comment } = require('../models');
+const { sequelize } = require('../config/database');
 
-// Get all testimonies
+// Get all approved testimonies with commentsCount
 router.get('/', async (req, res) => {
     try {
         const testimonies = await Testimony.findAll({
             where: { status: 'approved' },
             order: [['createdAt', 'DESC']],
+            attributes: {
+                include: [
+                    [
+                        sequelize.literal(`(SELECT COUNT(*) FROM Comments WHERE Comments.testimonyId = Testimony.id)`),
+                        'commentsCount'
+                    ]
+                ]
+            },
             include: [{
                 model: User,
                 as: 'user',
@@ -18,11 +27,11 @@ router.get('/', async (req, res) => {
         res.json(testimonies);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
-// Create new testimony
+// Create new testimony (requires login)
 router.post('/', auth, async (req, res) => {
     try {
         const { title, content, category, scripture } = req.body;
@@ -42,14 +51,19 @@ router.post('/', auth, async (req, res) => {
             }]
         });
         
-        res.json(fullTestimony);
+        // Return with a clear pending-status message
+        res.json({
+            testimony: fullTestimony,
+            message: 'Your testimony has been submitted and is awaiting admin approval. Thank you for sharing!',
+            status: 'pending'
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
-// Amen (Pray) for a testimony (increment amenCount)
+// Amen (increment amenCount)
 router.post('/:id/amen', auth, async (req, res) => {
     try {
         const testimony = await Testimony.findByPk(req.params.id);
@@ -66,7 +80,7 @@ router.post('/:id/amen', auth, async (req, res) => {
         res.json(updatedTestimony);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 

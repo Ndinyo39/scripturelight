@@ -12,11 +12,11 @@ router.get('/:id', auth, async (req, res) => {
                 exclude: ['password', 'email'], // Don't expose sensitive info
                 include: [
                     [
-                        sequelize.literal(`(SELECT COUNT(*) FROM "CommunityPosts" WHERE "userId" = "User"."id")`),
+                        sequelize.literal(`(SELECT COUNT(*) FROM CommunityPosts WHERE userId = User.id)`),
                         'postsCount'
                     ],
                     [
-                        sequelize.literal(`(SELECT COUNT(*) FROM "Testimonies" WHERE "userId" = "User"."id")`),
+                        sequelize.literal(`(SELECT COUNT(*) FROM Testimonies WHERE userId = User.id)`),
                         'testimoniesCount'
                     ]
                 ]
@@ -40,7 +40,7 @@ router.get('/:id', auth, async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 

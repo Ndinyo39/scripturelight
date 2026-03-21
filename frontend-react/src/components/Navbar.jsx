@@ -25,24 +25,20 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
+  // Robust check for admin role (handles case and whitespace)
+  const userRole = (user?.role || '').toString().toLowerCase().trim();
+  const isAdmin = isLoggedIn && userRole === 'admin';
+
+  // Build nav links fresh on every render so React always picks up role changes
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Study Plans', path: '/study-plans' },
     { name: 'Read Bible', path: '/bible' },
     { name: 'Community', path: '/community' },
     { name: 'Testimonies', path: '/testimonies' },
+    ...(isLoggedIn ? [{ name: 'Support', path: '/support' }] : []),
+    ...(isAdmin ? [{ name: '🛡️ Admin Panel', path: '/admin' }] : []),
   ];
-
-  if (isLoggedIn) {
-     navLinks.push({ name: 'Support', path: '/support' });
-  }
-
-  // Only show admin link if the user is logged in AND has strictly the 'admin' role
-  const isAdmin = isLoggedIn && user && user.role === 'admin';
-
-  if (isAdmin) {
-    navLinks.push({ name: '🛡️ Admin Panel', path: '/admin' });
-  }
 
 
   return (

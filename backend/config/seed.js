@@ -1,9 +1,9 @@
-const { StudyPlan } = require('../models');
+const { StudyPlan, User } = require('../models');
 
 const seedData = async () => {
     try {
+        // ── 1. Seed Study Plans ──────────────────────────────────────────
         const plansCount = await StudyPlan.count();
-        
         if (plansCount === 0) {
             console.log('Seeding initial study plans...');
             await StudyPlan.bulkCreate([
@@ -63,9 +63,37 @@ const seedData = async () => {
                 }
             ]);
             console.log('✅ Study plans seeded successfully.');
-        } else {
-            console.log('Database already seeded, skipping.');
         }
+
+        // ── 2. Seed Admin User ─────────────────────────────────────────────
+        const userCount = await User.count();
+        if (userCount === 0) {
+            console.log('Seeding default admin user...');
+            await User.create({
+                name: 'Admin User',
+                email: 'admin@scripturelight.com',
+                password: 'AdminPassword123!',
+                role: 'admin',
+                status: 'active'
+            });
+            console.log('✅ Admin User created: admin@scripturelight.com / AdminPassword123!');
+        } else {
+            // Check if admin specifically exists
+            const adminExists = await User.findOne({ where: { role: 'admin' } });
+            if (!adminExists) {
+                console.log('Creating admin user as none was found...');
+                await User.create({
+                    name: 'Admin User',
+                    email: 'admin@scripturelight.com',
+                    password: 'AdminPassword123!',
+                    role: 'admin',
+                    status: 'active'
+                });
+                console.log('✅ Admin User created.');
+            }
+        }
+
+        console.log('Database check/seed complete.');
     } catch (error) {
         console.error('❌ Seeding failed:', error);
     }

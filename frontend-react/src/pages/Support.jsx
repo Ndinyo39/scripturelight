@@ -11,9 +11,13 @@ import {
   ChevronRight,
   Smile,
   ExternalLink,
-  Lock
+  Lock,
+  Loader2,
+  Smartphone
 } from 'lucide-react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { useAuth } from '../context/AuthContext';
+import { api } from '../api';
 import './Support.css';
 
 const SUPPORT_TIERS = [
@@ -42,11 +46,15 @@ const IMPACT_CARDS = [
 ];
 
 const Support = () => {
+  const { user } = useAuth() || {};
   const [selectedAmount, setSelectedAmount] = useState(25);
   const [customAmount, setCustomAmount] = useState('');
   const [donationType, setDonationType] = useState('one-time');
+  const [paymentMethod, setPaymentMethod] = useState('paypal');
+  const [phone, setPhone] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showThanks, setShowThanks] = useState(false);
+  const [mpesaError, setMpesaError] = useState('');
 
   const finalAmount = customAmount || selectedAmount;
 
@@ -54,6 +62,27 @@ const Support = () => {
     return actions.order.capture().then((details) => {
       setShowThanks(true);
     });
+  };
+
+  const handleMpesaPayment = async () => {
+    setIsProcessing(true);
+    setMpesaError('');
+    try {
+      if (!phone || phone.length < 9) {
+        throw new Error('Please enter a valid phone number');
+      }
+      await api.post('/mpesa/stkpush', {
+         phone,
+         amount: finalAmount,
+         userId: user?.id
+      });
+      setShowThanks(true);
+      setPhone('');
+    } catch (err) {
+      setMpesaError(err.message || 'M-Pesa payment failed. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -132,36 +161,75 @@ const Support = () => {
             />
           </div>
 
-          <div className="paypal-container-wrapper">
-            <PayPalScriptProvider options={{ "client-id": "AQj8ZE_v1NEgJfAmUzvvRVSkBqWRkNs-mPjyZEiW1iOkOsCYNXoqLC_CU8_FdIydKM8tr_sgI-tjcSnl", components: "buttons", currency: "USD" }}>
-               <PayPalButtons 
-                 style={{ 
-                   layout: "vertical",
-                   color: "gold",
-                   shape: "rect",
-                   label: "donate"
-                 }}
-                 disabled={!finalAmount || finalAmount <= 0}
-                 forceReRender={[finalAmount, donationType]}
-                 createOrder={(data, actions) => {
-                   return actions.order.create({
-                     purchase_units: [
-                       {
-                         amount: {
-                           value: finalAmount.toString(),
-                         },
-                         description: `${donationType === 'monthly' ? 'Monthly' : 'One-time'} donation to ScriptureLight`
-                       },
-                     ],
-                   });
-                 }}
-                 onApprove={handleApprove}
-               />
-            </PayPalScriptProvider>
+          <div className="payment-method-toggle" style={{ display: 'flex', gap: '10px', marginTop: '1.5rem', marginBottom: '1.5rem', justifyContent: 'center' }}>
+             <button
+               className={`btn-outline ${paymentMethod === 'paypal' ? 'active' : ''}`}
+               onClick={() => setPaymentMethod('paypal')}
+               style={{ padding: '8px 20px', borderRadius: '20px', background: paymentMethod === 'paypal' ? 'var(--primary-color)' : 'transparent', color: paymentMethod === 'paypal' ? '#fff' : 'var(--primary-color)' }}
+             >
+               <Coffee size={16} style={{ marginRight: '6px' }} /> PayPal
+             </button>
+             <button
+               className={`btn-outline ${paymentMethod === 'mpesa' ? 'active' : ''}`}
+               onClick={() => setPaymentMethod('mpesa')}
+               style={{ padding: '8px 20px', borderRadius: '20px', background: paymentMethod === 'mpesa' ? '#4caf50' : 'transparent', color: paymentMethod === 'mpesa' ? '#fff' : '#4caf50', borderColor: '#4caf50' }}
+             >
+               <Smartphone size={16} style={{ marginRight: '6px' }} /> M-Pesa
+             </button>
           </div>
 
+          {paymentMethod === 'paypal' ? (
+            <div className="paypal-container-wrapper">
+              <PayPalScriptProvider options={{ "client-id": "AQj8ZE_v1NEgJfAmUzvvRVSkBqWRkNs-mPjyZEiW1iOkOsCYNXoqLC_CU8_FdIydKM8tr_sgI-tjcSnl", components: "buttons", currency: "USD" }}>
+                 <PayPalButtons 
+                   style={{ 
+                     layout: "vertical",
+                     color: "gold",
+                     shape: "rect",
+                     label: "donate"
+                   }}
+                   disabled={!finalAmount || finalAmount <= 0}
+                   forceReRender={[finalAmount, donationType]}
+                   createOrder={(data, actions) => {
+                     return actions.order.create({
+                       purchase_units: [
+                         {
+                           amount: {
+                             value: finalAmount.toString(),
+                           },
+                           description: `${donationType === 'monthly' ? 'Monthly' : 'One-time'} donation to ScriptureLight`
+                         },
+                       ],
+                     });
+                   }}
+                   onApprove={handleApprove}
+                 />
+              </PayPalScriptProvider>
+            </div>
+          ) : (
+            <div className="mpesa-container-wrapper" style={{ marginTop: '1rem' }}>
+               <input 
+                 type="text" 
+                 placeholder="M-Pesa Phone (e.g. 2547XXXXXXXX)" 
+                 className="custom-amount-input" 
+                 style={{ width: '100%', marginBottom: '15px' }}
+                 value={phone}
+                 onChange={(e) => setPhone(e.target.value)}
+               />
+               <button 
+                 className="btn-primary w-100"
+                 style={{ background: '#4caf50', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                 onClick={handleMpesaPayment}
+                 disabled={isProcessing || !finalAmount || !phone}
+               >
+                 {isProcessing ? <><Loader2 className="animate-spin" size={18} style={{ marginRight: '8px' }} /> Processing...</> : `Pay ${finalAmount} via M-Pesa`}
+               </button>
+               {mpesaError && <p className="text-danger mt-2 text-center" style={{ fontSize: '0.85rem', color: '#e74c3c' }}>{mpesaError}</p>}
+            </div>
+          )}
+
           <p className="text-center mt-4 text-muted" style={{ fontSize: '0.9rem' }}>
-            <Lock size={14} className="mr-1" /> Secure, encrypted payment via PayPal.
+            <Lock size={14} style={{ marginRight: '4px' }} /> Secure, encrypted payments.
           </p>
         </motion.div>
       </section>
@@ -180,7 +248,7 @@ const Support = () => {
               <h2 className="mb-3">Thank You for Your Support!</h2>
               <p className="mb-4">
                 Your generosity helps us keep the Word of God accessible to everyone globally. 
-                A confirmation has been sent to your email.
+                {paymentMethod === 'mpesa' ? " Please check your phone for the M-Pesa prompt to enter your PIN." : " A confirmation has been sent to your email."}
               </p>
               <button className="btn-primary w-100" onClick={() => setShowThanks(false)}>
                 Back to ScriptureLight

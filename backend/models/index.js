@@ -7,6 +7,11 @@ const BibleActivity = require('./BibleActivity');
 const BibleGroup = require('./BibleGroup');
 const GroupMember = require('./GroupMember');
 const Book = require('./Book');
+const Transaction = require('./Transaction');
+
+// User <-> Transaction
+User.hasMany(Transaction, { foreignKey: 'userId', as: 'transactions' });
+Transaction.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 // User <-> CommunityPost
 User.hasMany(CommunityPost, { foreignKey: 'userId', as: 'posts' });
@@ -59,5 +64,6 @@ module.exports = {
     BibleActivity,
     BibleGroup,
     GroupMember,
-    Book
+    Book,
+    Transaction
 };

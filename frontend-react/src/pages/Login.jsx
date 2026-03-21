@@ -10,6 +10,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isPending, setIsPending] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -26,10 +27,13 @@ const Login = () => {
       navigate('/dashboard');
     } catch (err) {
       if (err.message.toLowerCase().includes('pending')) {
-        setError('Your account is awaiting admin approval. Please check back later!');
+        setIsPending(true);
+        setError('');
       } else if (err.message.toLowerCase().includes('suspended')) {
+        setIsPending(false);
         setError('Your account has been suspended. Please contact support.');
       } else {
+        setIsPending(false);
         setError(err.message || 'Login failed. Please try again.');
       }
     } finally {
@@ -53,6 +57,15 @@ const Login = () => {
         </div>
 
         {error && <div className="auth-error">{error}</div>}
+        {isPending && (
+          <div className="auth-pending-banner">
+            <span>⏳</span>
+            <div>
+              <strong>Account Pending Approval</strong>
+              <p>Your account is awaiting admin review. You'll be able to log in once approved. Questions? <a href="mailto:admin@scripturelight.com">Contact admin</a>.</p>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="auth-form">
           <div className="form-group">

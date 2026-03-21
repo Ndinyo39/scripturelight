@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ override: true });
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -71,6 +71,7 @@ app.use('/api/admin', (req, res, next) => require('./routes/admin')(req, res, ne
 app.use('/api/books', (req, res, next) => require('./routes/books')(req, res, next));
 app.use('/api/users', (req, res, next) => require('./routes/users')(req, res, next));
 app.use('/api/stats', (req, res, next) => require('./routes/stats')(req, res, next));
+app.use('/api/mpesa', (req, res, next) => require('./routes/mpesa')(req, res, next));
 
 // Serve uploaded book files statically
 app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));
@@ -123,6 +124,7 @@ if (require.main === module) {
         console.log(`   /api/auth`);
         console.log(`   /api/community`);
         console.log(`   /api/study`);
+        console.log(`   /api/mpesa`);
         console.log('='.repeat(60) + '\n');
     });
 }

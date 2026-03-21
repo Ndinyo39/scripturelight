@@ -42,7 +42,7 @@ router.post('/record-progress', auth, async (req, res) => {
         res.json({ message: 'Progress recorded successfully', activity, streak: user?.streak });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -108,7 +108,7 @@ router.get('/stats', auth, async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 

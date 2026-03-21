@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
         res.json(posts);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -44,7 +44,7 @@ router.post('/', auth, async (req, res) => {
         res.json(fullPost);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -59,7 +59,7 @@ router.post('/:id/pray', auth, async (req, res) => {
         res.json(updatedPost);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -74,7 +74,7 @@ router.delete('/:id', auth, async (req, res) => {
         res.json({ message: 'Post removed' });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 

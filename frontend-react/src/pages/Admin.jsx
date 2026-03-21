@@ -26,6 +26,12 @@ const Admin = () => {
     const [stats, setStats] = useState({});
     const [data, setData] = useState([]);
     const [filterStatus, setFilterStatus] = useState('all');
+    const [notification, setNotification] = useState(null);
+
+    const showNotification = (msg, type = 'success') => {
+        setNotification({ msg, type });
+        setTimeout(() => setNotification(null), 3000);
+    };
 
     useEffect(() => {
         fetchStats();
@@ -61,8 +67,9 @@ const Admin = () => {
             // Update local state
             setData(prev => prev.map(item => item.id === id ? { ...item, status } : item));
             fetchStats(); // Update pending counts
+            showNotification('Status updated successfully');
         } catch (err) {
-            alert('Failed to update status');
+            showNotification('Failed to update status', 'error');
         }
     };
 
@@ -72,8 +79,9 @@ const Admin = () => {
             await api.delete(`/admin/${type}/${id}`);
             setData(prev => prev.filter(item => item.id !== id));
             fetchStats();
+            showNotification('Item deleted successfully');
         } catch (err) {
-            alert('Failed to delete item');
+            showNotification('Failed to delete item', 'error');
         }
     };
 
@@ -81,8 +89,9 @@ const Admin = () => {
         try {
             await api.patch(`/admin/users/${userId}/role`, { role });
             setData(prev => prev.map(user => user.id === userId ? { ...user, role } : user));
+            showNotification('User role updated successfully');
         } catch (err) {
-            alert('Failed to update user role');
+            showNotification('Failed to update user role', 'error');
         }
     };
 
@@ -91,8 +100,9 @@ const Admin = () => {
             await api.patch(`/admin/users/${userId}/status`, { status });
             setData(prev => prev.map(user => user.id === userId ? { ...user, status } : user));
             fetchStats();
+            showNotification('User status updated successfully');
         } catch (err) {
-            alert('Failed to update user status');
+            showNotification('Failed to update user status', 'error');
         }
     };
 
@@ -178,6 +188,24 @@ const Admin = () => {
                 </div>
 
                 <div className="admin-board">
+                    {notification && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            style={{
+                                padding: '12px 16px',
+                                marginBottom: '16px',
+                                borderRadius: '8px',
+                                background: notification.type === 'error' ? '#ffeeee' : '#eeffee',
+                                color: notification.type === 'error' ? '#e74c3c' : '#2ecc71',
+                                border: `1px solid ${notification.type === 'error' ? '#e74c3c' : '#2ecc71'}`,
+                                fontWeight: 500
+                            }}
+                        >
+                            {notification.msg}
+                        </motion.div>
+                    )}
+
                     {activeTab === 'stats' && (
                         <div className="text-center p-5">
                             <h2 className="mb-4">Quick Insights</h2>

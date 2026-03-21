@@ -120,10 +120,11 @@ function App() {
         </Routes>
         
         <footer style={{ 
-          padding: '2.5rem 0 1.5rem', 
+          padding: '4rem 0 3rem', 
           background: '#0f1b2d', 
-          marginTop: '0',
-          color: 'rgba(255,255,255,0.6)'
+          marginTop: '4rem',
+          color: 'rgba(255,255,255,0.6)',
+          borderTop: '1px solid rgba(255,255,255,0.05)'
         }}>
           <div className="container">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>

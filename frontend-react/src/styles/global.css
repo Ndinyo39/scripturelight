@@ -18,6 +18,13 @@
     --accent: #2a9d8f;
     --accent-dark: #21867a;
     
+    /* Gold Theme Colors */
+    --gold: #d4af37;
+    --gold-light: #f9e29a;
+    --gold-dark: #996515;
+    --gold-gradient: linear-gradient(135deg, #d4af37 0%, #f9e29a 50%, #d4af37 100%);
+    --gold-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    
     /* Neutral Colors */
     --light: #f4f6fb;
     --dark: #1a1a2e;
@@ -398,6 +405,23 @@ a {
 .text-xs { font-size: 0.75rem; }
 .text-sm { font-size: 0.85rem; }
 .mr-2 { margin-right: 0.5rem; }
+
+/* ── GOLD UTILITIES ────────────────────────── */
+.text-gold { color: var(--gold); }
+.bg-gold { background: var(--gold); }
+.bg-gold-gradient { background: var(--gold-gradient); }
+.border-gold { border: 1px solid var(--gold); }
+.gold-heading {
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+.gold-card {
+    border-top: 4px solid var(--gold);
+    box-shadow: var(--gold-shadow);
+}
 
 /* ── APP SHELL ────────────────────────────── */
 .app {

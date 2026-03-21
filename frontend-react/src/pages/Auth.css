@@ -270,3 +270,84 @@
     text-decoration: underline;
 }
 
+/* ── PENDING APPROVAL BANNER (Login) ──────────── */
+.auth-pending-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: linear-gradient(135deg, #fff8e1, #fff3cd);
+    border: 1.5px solid #f0c040;
+    color: #7a5c00;
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    border-left: 4px solid #f9a825;
+}
+
+.auth-pending-banner span { font-size: 1.5rem; line-height: 1; flex-shrink: 0; }
+.auth-pending-banner strong { display: block; font-size: 0.95rem; margin-bottom: 0.3rem; color: #5a3e00; }
+.auth-pending-banner p { margin: 0; opacity: 0.85; }
+.auth-pending-banner a { color: #7a5c00; font-weight: 700; text-decoration: underline; }
+
+/* ── PRE-SUBMIT APPROVAL NOTICE (Register) ────── */
+.approval-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fef9e7;
+    border: 1px solid #f9d74c;
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    font-size: 0.82rem;
+    color: #6b4e00;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+}
+
+/* ── PENDING APPROVAL SUCCESS SCREEN (Register) ── */
+.pending-approval-screen { text-align: center; padding: 0.5rem 0.25rem 1rem; }
+
+.pending-icon-ring {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fff8e1, #fef3c7);
+    border: 3px solid #f9a825;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: #f9a825;
+    box-shadow: 0 0 0 8px rgba(249,168,37,0.12);
+}
+
+.pending-approval-screen h3 { font-size: 1.5rem; color: var(--dark); margin: 0 0 0.25rem; }
+.pending-subtitle { font-size: 1rem; color: #f9a825; font-weight: 700; margin: 0 0 1rem; }
+
+.pending-message {
+    color: var(--gray);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    max-width: 340px;
+    margin: 0 auto 1.5rem;
+}
+
+.pending-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    text-align: left;
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.75rem;
+}
+
+.pending-step { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: var(--dark); }
+.pending-step svg { color: #2a9d8f; flex-shrink: 0; }
+.pending-back-btn { padding: 0.85rem 2.5rem; font-size: 0.95rem; }
+.pending-contact { margin-top: 1.25rem; font-size: 0.82rem; color: var(--gray); }
+.pending-contact a { color: var(--primary); font-weight: 600; text-decoration: none; }
+.pending-contact a:hover { text-decoration: underline; }

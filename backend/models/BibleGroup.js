@@ -23,6 +23,10 @@ const BibleGroup = sequelize.define('BibleGroup', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    pinnedVerse: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     isPrivate: {
         type: DataTypes.BOOLEAN,
         defaultValue: false

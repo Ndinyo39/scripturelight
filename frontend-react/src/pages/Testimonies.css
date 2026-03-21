@@ -1,17 +1,18 @@
-/* Testimonies.css */
+/* ── Testimonies Page ────────────────────────────────────────── */
 
 .testimonies-page {
   padding-top: 2rem;
   padding-bottom: 5rem;
 }
 
+/* Hero */
 .testimony-hero {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   border-radius: 24px;
   padding: 4rem 2rem;
   text-align: center;
   color: var(--white);
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
   box-shadow: var(--shadow-lg);
   position: relative;
   overflow: hidden;
@@ -20,10 +21,7 @@
 .testimony-hero::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.1) 0%, transparent 40%);
   pointer-events: none;
 }
@@ -61,7 +59,43 @@
   box-shadow: 0 15px 30px rgba(0,0,0,0.2);
 }
 
-/* Testimony Card Styling */
+/* ── Submission notice ────────────── */
+.submission-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+  border: 1px solid #a5d6a7;
+  color: #2e7d32;
+  border-radius: 14px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.submission-notice span { font-size: 1.5rem; line-height: 1; }
+.submission-notice strong { display: block; font-size: 1rem; margin-bottom: 0.25rem; }
+.submission-notice p { margin: 0; font-size: 0.9rem; opacity: 0.85; }
+
+.notice-close {
+  position: absolute;
+  top: 0.75rem; right: 0.75rem;
+  background: none; border: none; cursor: pointer;
+  color: #2e7d32; opacity: 0.6;
+  display: flex; align-items: center;
+  transition: opacity 0.2s;
+}
+.notice-close:hover { opacity: 1; }
+
+/* ── Category filter ──────────────── */
+.testimonies-filter {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+/* ── Testimony Card ───────────────── */
 .testimony-card {
   background: var(--white);
   border-radius: 20px;
@@ -79,11 +113,10 @@
 
 .testimony-badge {
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
+  top: 1.5rem; right: 1.5rem;
   padding: 4px 12px;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   background: var(--primary-light);
@@ -101,22 +134,40 @@
   font-size: 1.05rem;
   line-height: 1.8;
   color: var(--dark);
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   position: relative;
   font-style: italic;
 }
 
 .testimony-content::before {
-  content: '“';
+  content: '\201C';
   position: absolute;
-  left: -1.5rem;
-  top: -1rem;
+  left: -1.5rem; top: -1rem;
   font-size: 4rem;
   color: var(--primary-light);
   opacity: 0.5;
   font-family: serif;
 }
 
+/* Read more toggle */
+.read-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  margin-top: 0.4rem;
+  transition: opacity 0.2s;
+  font-style: normal;
+}
+.read-more-btn:hover { opacity: 0.75; text-decoration: underline; }
+
+/* ── Amen Section ─────────────────── */
 .amen-section {
   display: flex;
   align-items: center;
@@ -140,23 +191,71 @@
   color: var(--gray);
 }
 
-.amen-btn-big:hover {
-  background: #fff5f5;
-  border-color: #ffcdd2;
-  color: #d32f2f;
+.amen-btn-big:hover { background: #fff5f5; border-color: #ffcdd2; color: #d32f2f; }
+.amen-btn-big.active { background: #ffebee; border-color: #ef9a9a; color: #c62828; }
+.amen-btn-big.active svg { fill: #c62828; }
+
+/* ── Comments ─────────────────────── */
+.comments-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--gray-lighter);
+  overflow: hidden;
 }
 
-.amen-btn-big.active {
-  background: #ffebee;
-  border-color: #ef9a9a;
-  color: #c62828;
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
-.amen-btn-big.active svg {
-  fill: #c62828;
+.comment-item {
+  background: var(--gray-lightest, #f7f9fc);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  transition: background 0.2s;
 }
 
-/* Modal Styling for Testimonies */
+.comment-item:hover { background: #eef2f7; }
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.4rem;
+}
+
+.comment-author { font-weight: 600; font-size: 0.88rem; color: var(--dark); }
+.comment-date { font-size: 0.75rem; color: #888; margin-left: auto; }
+.comment-text { margin: 0; font-size: 0.93rem; color: var(--dark); line-height: 1.6; }
+.no-comments-msg { text-align: center; color: #888; font-size: 0.9rem; padding: 1rem 0; margin: 0; }
+
+.comment-input-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 0.5rem;
+}
+
+.comment-input-box input {
+  flex: 1;
+  padding: 0.6rem 1.25rem;
+  border-radius: 20px;
+  border: 1px solid var(--gray-lighter);
+  font-size: 0.9rem;
+  background: var(--gray-lightest, #f7f9fc);
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.comment-input-box input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--white);
+  box-shadow: 0 0 0 4px var(--primary-transparent);
+}
+
+/* ── Modal ────────────────────────── */
 .testimony-modal-body {
   padding: 2.5rem;
 }
@@ -168,8 +267,8 @@
   color: var(--dark);
 }
 
-.testimony-modal-body input, 
-.testimony-modal-body select, 
+.testimony-modal-body input,
+.testimony-modal-body select,
 .testimony-modal-body textarea {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -180,116 +279,71 @@
   transition: border-color 0.2s;
 }
 
-.testimony-modal-body input:focus, 
+.testimony-modal-body input:focus,
 .testimony-modal-body textarea:focus {
   outline: none;
   border-color: var(--primary);
 }
 
-/* Comments Section */
-.comments-section {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px dashed var(--gray-lighter);
+/* ── Empty State ──────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 5rem 2rem;
+  color: #888;
 }
 
-.comment-input-box {
-  display: flex;
-  gap: 10px;
-  margin-top: 1.5rem;
+.empty-state svg {
+  margin: 0 auto 1.5rem;
+  opacity: 0.35;
+  display: block;
 }
 
-.comment-input-box input {
-  flex: 1;
-  padding: 0.6rem 1.25rem;
-  border-radius: 20px;
-  border: 1px solid var(--gray-lighter);
+.empty-state h3 {
+  font-size: 1.4rem;
+  color: var(--dark);
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  max-width: 380px;
+  margin: 0 auto;
+  font-size: 0.95rem;
+}
+
+/* ── Toast Notification ───────────── */
+.toast-notification {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--dark, #1a1a2e);
+  color: #fff;
+  padding: 0.85rem 1.75rem;
+  border-radius: 50px;
+  font-weight: 600;
   font-size: 0.9rem;
-  background: var(--gray-lightest);
-  transition: all 0.2s;
-}
-
-.comment-input-box input:focus {
-  outline: none;
-  border-color: var(--primary);
-  background: var(--white);
-  box-shadow: 0 0 0 4px var(--primary-transparent);
-}
-
-.comment-list {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  z-index: 9999;
+  white-space: nowrap;
 }
 
-.comment-item {
-  background: var(--gray-lightest);
-  border-radius: 12px;
-  padding: 1rem;
-  transition: background 0.2s;
-}
-
-.comment-item:hover {
-  background: #f0f4f8;
-}@media (max-width: 480px) {
-  .testimony-hero {
-    padding: 2.5rem 1.25rem;
-    border-radius: 16px;
-  }
-
-  .testimony-hero h2 {
-    font-size: 1.6rem;
-  }
-
-  .testimony-hero p {
-    font-size: 0.95rem;
-  }
-
-  .share-btn-large {
-    padding: 0.85rem 1.5rem;
-    font-size: 0.9rem;
-  }
-
-  .testimony-card {
-    padding: 1.5rem 1.25rem;
-  }
-
-  .testimony-content::before {
-    left: 0;
-    font-size: 3rem;
-    top: -0.75rem;
-  }
-
-  .testimony-content {
-    padding-left: 0.5rem;
-  }
-
-  .testimony-title {
-    font-size: 1.2rem;
-  }
-
-  .amen-section {
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .amen-btn-big {
-    flex: 1;
-    justify-content: center;
-    min-width: 130px;
-  }
-
-  .comment-input-box {
-    flex-direction: column;
-  }
-
-  .comment-input-box input {
-    border-radius: 10px;
-  }
-
-  .comment-input-box .btn-primary {
-    width: 100%;
-    justify-content: center;
-    border-radius: 10px;
-  }
+/* ── Responsive ───────────────────── */
+@media (max-width: 480px) {
+  .testimony-hero { padding: 2.5rem 1.25rem; border-radius: 16px; }
+  .testimony-hero h2 { font-size: 1.6rem; }
+  .testimony-hero p { font-size: 0.95rem; }
+  .share-btn-large { padding: 0.85rem 1.5rem; font-size: 0.9rem; }
+  .testimony-card { padding: 1.5rem 1.25rem; }
+  .testimony-content::before { left: 0; font-size: 3rem; top: -0.75rem; }
+  .testimony-content { padding-left: 0.5rem; }
+  .testimony-title { font-size: 1.2rem; }
+  .amen-section { flex-wrap: wrap; gap: 0.75rem; }
+  .amen-btn-big { flex: 1; justify-content: center; min-width: 130px; }
+  .comment-input-box { flex-direction: column; }
+  .comment-input-box input { border-radius: 10px; }
+  .comment-input-box .btn-primary { width: 100%; justify-content: center; border-radius: 10px; }
+  .toast-notification { left: 1rem; right: 1rem; transform: none; text-align: center; white-space: normal; }
 }

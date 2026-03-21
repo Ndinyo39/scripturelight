@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
         res.json(groups);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -37,7 +37,7 @@ router.get('/my', auth, async (req, res) => {
         res.json(user.groups);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -45,13 +45,14 @@ router.get('/my', auth, async (req, res) => {
 // @desc    Create a new group
 router.post('/', auth, async (req, res) => {
     try {
-        const { name, description, topic, meetingTime, isPrivate } = req.body;
+        const { name, description, topic, meetingTime, pinnedVerse, isPrivate } = req.body;
         
         const group = await BibleGroup.create({
             name,
             description,
             topic,
             meetingTime,
+            pinnedVerse,
             isPrivate: isPrivate || false,
             founderId: req.user.id
         });
@@ -74,7 +75,7 @@ router.post('/', auth, async (req, res) => {
         res.json(fullGroup);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -102,7 +103,7 @@ router.get('/:id', async (req, res) => {
         res.json(group);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -134,7 +135,7 @@ router.post('/:id/join', auth, async (req, res) => {
         res.json({ message: 'Joined successfully' });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -163,7 +164,7 @@ router.post('/:id/leave', auth, async (req, res) => {
         res.json({ message: 'Left successfully' });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -183,7 +184,7 @@ router.get('/:id/posts', async (req, res) => {
         res.json(posts);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -221,7 +222,7 @@ router.post('/:id/posts', auth, async (req, res) => {
         res.json(fullPost);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 

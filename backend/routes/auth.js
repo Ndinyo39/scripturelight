@@ -49,15 +49,14 @@ router.post('/register', [
             password
         });
 
-        // Since new users are 'pending' by default, we don't return a token.
-        // They must wait for admin approval and then log in.
+        // New users are 'active' by default for immediate community access
         res.json({ 
-            message: 'Registration successful! Your account is now pending administrator approval. You will be able to log in once approved.',
+            message: 'Registration successful! Your account is pending admin approval. You will be notified once approved.',
             status: 'pending'
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -127,7 +126,7 @@ router.post('/login', [
         );
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -159,6 +158,9 @@ router.put('/profile', auth, uploadProfile.single('profilePicture'), async (req,
                 id: user.id,
                 name: user.name,
                 email: user.email,
+                role: user.role,
+                status: user.status,
+                streak: user.streak,
                 profilePicture: user.profilePicture,
                 bio: user.bio
             }
@@ -169,21 +171,22 @@ router.put('/profile', auth, uploadProfile.single('profilePicture'), async (req,
     }
 });
 router.get('/me', auth, async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     try {
         const user = await User.findByPk(req.user.id, {
             attributes: {
                 exclude: ['password'],
                 include: [
                     [
-                        sequelize.literal(`(SELECT COUNT(*) FROM "CommunityPosts" WHERE "userId" = "User"."id")`),
+                        sequelize.literal(`(SELECT COUNT(*) FROM CommunityPosts WHERE userId = User.id)`),
                         'postsCount'
                     ],
                     [
-                        sequelize.literal(`(SELECT COUNT(*) FROM "Testimonies" WHERE "userId" = "User"."id")`),
+                        sequelize.literal(`(SELECT COUNT(*) FROM Testimonies WHERE userId = User.id)`),
                         'testimoniesCount'
                     ],
                     [
-                        sequelize.literal(`(SELECT COUNT(*) FROM "Comments" WHERE "userId" = "User"."id")`),
+                        sequelize.literal(`(SELECT COUNT(*) FROM Comments WHERE userId = User.id)`),
                         'commentsCount'
                     ]
                 ]
@@ -193,10 +196,27 @@ router.get('/me', auth, async (req, res) => {
                 as: 'activePlan'
             }]
         });
-        res.json(user);
+        // Return a plain object so ENUM fields (like role) are always serialized
+        res.json({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            status: user.status,
+            streak: user.streak,
+            completedPlansCount: user.completedPlansCount,
+            profilePicture: user.profilePicture,
+            bio: user.bio,
+            lastLogin: user.lastLogin,
+            postsCount: user.get('postsCount'),
+            testimoniesCount: user.get('testimoniesCount'),
+            commentsCount: user.get('commentsCount'),
+            activePlan: user.activePlan ?? null,
+            createdAt: user.createdAt,
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 

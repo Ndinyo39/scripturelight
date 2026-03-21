@@ -6,10 +6,11 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { isLoggedIn, user, loading } = useAuth();
   const location = useLocation();
 
+  // Always wait until auth has fully loaded (including the /api/auth/me sync)
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div style={{ width: 48, height: 48, borderRadius: '50%', border: '4px solid #e9c46a', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />
       </div>
     );
   }
@@ -19,17 +20,16 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Admin-only pages: strictly check role equals 'admin'
-  // Any other value — including undefined, null, 'user' — is denied
+  // Admin-only pages: robust check (case-insensitive, handles undefined)
   if (adminOnly) {
-    if (!user || user.role !== 'admin') {
-      // Redirect non-admins silently to home with no explanation
-      return <Navigate to="/" replace />;
+    const userRole = (user?.role || '').toString().toLowerCase().trim();
+    if (userRole !== 'admin') {
+      console.warn('ProtectedRoute: Access denied. User role:', user?.role);
+      return <Navigate to="/dashboard" replace />;
     }
   }
 
   return children;
 };
-
 
 export default ProtectedRoute;

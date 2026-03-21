@@ -17,7 +17,7 @@ router.get('/post/:postId', async (req, res) => {
         res.json(comments);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -35,7 +35,7 @@ router.get('/testimony/:testimonyId', async (req, res) => {
         res.json(comments);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -62,7 +62,7 @@ router.post('/post/:postId', auth, async (req, res) => {
         res.json(fullComment);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -86,7 +86,7 @@ router.post('/testimony/:testimonyId', auth, async (req, res) => {
         res.json(fullComment);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 

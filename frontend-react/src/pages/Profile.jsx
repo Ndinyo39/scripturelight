@@ -60,13 +60,10 @@ const Profile = () => {
 
             // Using fetch directly for FormData to avoid axios/api JSON default headers
             const token = localStorage.getItem('token');
-            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const baseUrl = isLocal ? 'http://localhost:5000' : '';
-            const response = await fetch(`${baseUrl}/api/auth/profile`, {
+            const response = await fetch('/api/auth/profile', {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`
-                    // DON'T set Content-Type, browser will do it for FormData
                 },
                 body: data
             });
@@ -85,9 +82,6 @@ const Profile = () => {
 
             setSuccess('Profile updated successfully!');
             setStatus('success');
-            
-            // Short delay then reload to refresh all visual assets
-            setTimeout(() => window.location.reload(), 1000);
         } catch (err) {
             setError(err.message);
             setStatus('error');

@@ -1,21 +1,31 @@
 const { Sequelize } = require('sequelize');
 const path = require('path');
-const pg = require('pg');
 
 let sequelize = null;
 let initError = null;
 
 const initSequelize = () => {
     try {
-        let dbUrl = process.env.DATABASE_URL ? process.env.DATABASE_URL.trim() : null;
-        
-        // Aggressively strip ALL backslashes, quotes, or whitespace
-        if (dbUrl) {
-            dbUrl = dbUrl.replace(/[\\"']+/g, '').trim();
+        // AGGRESSIVE Cleanup of default PG environment variables to prevent driver interference
+        const pgVars = ['DATABASE_URL', 'PGPORT', 'PGHOST', 'PGUSER', 'PGPASSWORD', 'PGDATABASE'];
+        if (process.env.NODE_ENV !== 'production') {
+            pgVars.forEach(v => delete process.env[v]);
         }
 
-        if (dbUrl) {
-            console.log('Database URL detected, initializing Sequelize components manually...');
+        // STRATEGIC FIX: Force SQLite unless we are EXACTLY in production mode
+        const isProduction = process.env.NODE_ENV === 'production';
+        
+        // Re-read after potential deletion
+        let dbUrlStr = (isProduction && process.env.DATABASE_URL) 
+            ? process.env.DATABASE_URL.trim() 
+            : null;
+        
+        if (!isProduction) dbUrlStr = null;
+
+        if (dbUrlStr) {
+            console.log('Production Database detected, configuring PostgreSQL components...');
+            const pg = require('pg'); // Lazy load
+            const dbUrl = dbUrlStr.replace(/[\\"']+/g, '').trim();
             const u = new URL(dbUrl);
             const dbName = u.pathname.substring(1);
             const dbUser = u.username;
@@ -23,14 +33,8 @@ const initSequelize = () => {
             const dbHost = u.hostname;
             const dbPort = parseInt(u.port || '5432', 10);
 
-            // CRITICAL: Delete the environment variable after parsing it!
-            // This prevents the 'pg' driver from seeing it and trying its own (buggy) parsing.
-            delete process.env.DATABASE_URL;
-            delete process.env.PGPORT;
-            delete process.env.PGHOST;
-            delete process.env.PGUSER;
-            delete process.env.PGPASSWORD;
-            delete process.env.PGDATABASE;
+            // Double ensure they are gone from the environment for this process
+            pgVars.forEach(v => delete process.env[v]);
 
             sequelize = new Sequelize(dbName, dbUser, dbPass, {
                 host: dbHost,

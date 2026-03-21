@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
         res.json(plans);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -46,7 +46,7 @@ router.post('/join', auth, async (req, res) => {
         res.json(updatedUser);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -67,7 +67,7 @@ router.get('/my-plan', auth, async (req, res) => {
         }
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 

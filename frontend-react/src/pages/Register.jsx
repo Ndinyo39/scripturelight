@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { UserPlus, Mail, Lock, User, Loader2, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, Loader2, Eye, EyeOff, Clock, ShieldCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
@@ -37,18 +37,9 @@ const Register = () => {
     setSuccess('');
 
     try {
-      const data = await api.post('/auth/register', {
-        name,
-        email,
-        password
-      });
-
-      if (data.status === 'pending') {
-        setSuccess(data.message);
-      } else {
-        login(data.user, data.token);
-        navigate('/dashboard');
-      }
+      const data = await api.post('/auth/register', { name, email, password });
+      // All new registrations are now pending — always show the approval screen
+      setSuccess(data.message || 'Registration successful!');
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
@@ -74,14 +65,40 @@ const Register = () => {
         {error && <div className="auth-error">{error}</div>}
 
         {success ? (
-          <div className="text-center py-4">
-             <div className="auth-success-alert mb-4" style={{ background: 'var(--primary-transparent)', padding: '2rem', borderRadius: 'var(--radius)', color: 'var(--primary)' }}>
-                <p style={{ fontWeight: 600, fontSize: '1.1rem', marginBottom: 0 }}>{success}</p>
-             </div>
-             <Link to="/login" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block' }}>
-               Back to Login
-             </Link>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="pending-approval-screen"
+          >
+            <div className="pending-icon-ring">
+              <Clock size={40} />
+            </div>
+            <h3>Account Created!</h3>
+            <h4 className="pending-subtitle">Awaiting Admin Approval</h4>
+            <p className="pending-message">
+              Your account has been created successfully. An admin will review and approve your account before you can log in.
+            </p>
+            <div className="pending-steps">
+              <div className="pending-step">
+                <ShieldCheck size={18} />
+                <span>Admin reviews your account</span>
+              </div>
+              <div className="pending-step">
+                <ShieldCheck size={18} />
+                <span>You receive approval to access ScriptureLight</span>
+              </div>
+              <div className="pending-step">
+                <ShieldCheck size={18} />
+                <span>Log in and begin your faith journey</span>
+              </div>
+            </div>
+            <Link to="/login" className="btn-primary pending-back-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
+              Back to Login
+            </Link>
+            <p className="pending-contact">
+              Questions? <a href="mailto:admin@scripturelight.com">Contact Admin</a>
+            </p>
+          </motion.div>
         ) : (
           <>
             <form onSubmit={handleRegister} className="auth-form">
@@ -130,6 +147,12 @@ const Register = () => {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+              </div>
+
+              {/* Approval notice before submit */}
+              <div className="approval-notice">
+                <Clock size={15} />
+                <span>New accounts require admin approval before login.</span>
               </div>
 
               <button type="submit" className="btn-submit" disabled={loading}>
