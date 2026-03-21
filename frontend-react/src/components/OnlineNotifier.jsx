@@ -88,8 +88,8 @@ const OnlineNotifier = () => {
               gap: '12px',
               border: '1px solid #e9ecef',
               pointerEvents: 'auto',
-              minWidth: '280px',
-              maxWidth: '90vw'
+              minWidth: '240px',
+              maxWidth: 'calc(100vw - 40px)'
             }}
           >
             <div style={{
@@ -111,9 +111,9 @@ const OnlineNotifier = () => {
                 toast.user.name.charAt(0)
               )}
             </div>
-            <div style={{ flex: 1 }}>
-              <p style={{ margin: 0, fontSize: '0.85rem', color: '#6c757d', lineHeight: 1.2 }}>Just came online</p>
-              <p style={{ margin: '2px 0 0 0', fontSize: '0.95rem', fontWeight: 600, color: '#1a1a2e', lineHeight: 1.2 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#6c757d', lineHeight: 1.2 }}>Just came online</p>
+              <p style={{ margin: '2px 0 0 0', fontSize: '0.9rem', fontWeight: 600, color: '#1a1a2e', lineHeight: 1.2, wordBreak: 'break-word' }}>
                 {toast.user.name.split(' ')[0]} is here! 🙏
               </p>
             </div>
