@@ -93,8 +93,7 @@ export const AuthProvider = ({ children }) => {
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0a1628' }}>
-        <div style={{ width: 52, height: 52, borderRadius: '50%', border: '4px solid #e9c46a', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <div className="animate-spin" style={{ width: 52, height: 52, borderRadius: '50%', border: '4px solid #e9c46a', borderTopColor: 'transparent' }} />
       </div>
     );
   }

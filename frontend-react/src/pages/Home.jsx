@@ -15,6 +15,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
+import { getImageUrl } from '../utils/imageUrl';
 import './Home.css';
 
 const inspirationalVerses = [
@@ -86,6 +87,8 @@ const testimonialSnippets = [
 const Home = () => {
   const { isLoggedIn, user } = useAuth();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [fetchedTestimonies, setFetchedTestimonies] = useState([]);
   const [currentVerse, setCurrentVerse] = useState(inspirationalVerses[0]);
   const [realStats, setRealStats] = useState({
     users: 0,
@@ -124,23 +127,44 @@ const Home = () => {
         console.error('Failed to fetch home stats:', err);
       }
     };
+    const fetchTestimonies = async () => {
+      try {
+        const data = await api.get('/testimonies');
+        if (data && data.length > 0) {
+          setFetchedTestimonies(data.slice(0, 6)); // Top 6 recent
+        }
+      } catch (err) {
+        console.error('Failed to fetch testimonies for home:', err);
+      }
+    };
     fetchStats();
+    fetchTestimonies();
   }, []);
+
+  const displayTestimonials = fetchedTestimonies.length > 0 
+    ? fetchedTestimonies.map(t => ({
+        text: t.content.length > 150 ? t.content.substring(0, 150) + '...' : t.content,
+        author: t.user?.name || 'Anonymous',
+        role: t.category || 'Member',
+        avatar: t.user?.profilePicture
+      }))
+    : testimonialSnippets;
 
   const stats = [
     { value: (realStats?.users || 0).toLocaleString(), label: "Registered Users" },
-    { value: (realStats?.users || 0).toLocaleString(), label: "Scripture Readers" },
     { value: (realStats?.groups || 0) > 0 ? `${realStats.groups}+` : "0", label: "Fellowship Groups" },
     { value: (realStats?.testimonies || 0).toLocaleString(), label: "Testimonies Shared" },
     { value: (realStats?.prayers || 0).toLocaleString(), label: "Prayer Requests" }
   ];
 
   useEffect(() => {
+    if (isPaused) return;
+    const len = fetchedTestimonies.length > 0 ? fetchedTestimonies.length : testimonialSnippets.length;
     const timer = setInterval(() => {
-      setActiveTestimonial(prev => (prev + 1) % testimonialSnippets.length);
+      setActiveTestimonial(prev => (prev + 1) % len);
     }, 4000);
     return () => clearInterval(timer);
-  }, []);
+  }, [isPaused, fetchedTestimonies.length]);
 
   return (
     <div className="home-page">
@@ -300,8 +324,12 @@ const Home = () => {
             What Believers Are Saying
           </motion.h2>
 
-          <div className="testimonial-carousel">
-            {testimonialSnippets.map((t, i) => (
+          <div 
+            className="testimonial-carousel"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            {displayTestimonials.map((t, i) => (
               <motion.div 
                 key={i}
                 className={`testimonial-slide ${i === activeTestimonial ? 'active' : ''}`}
@@ -312,7 +340,11 @@ const Home = () => {
                 <Quote size={36} className="t-quote-icon" />
                 <p className="t-text">"{t.text}"</p>
                 <div className="t-author">
-                  <div className="t-avatar">{t.author.charAt(0)}</div>
+                  {t.avatar ? (
+                    <img src={getImageUrl(t.avatar)} alt={t.author} className="t-avatar" style={{ objectFit: 'cover' }} />
+                  ) : (
+                    <div className="t-avatar">{t.author.charAt(0)}</div>
+                  )}
                   <div>
                     <strong>{t.author}</strong>
                     <span>{t.role}</span>
@@ -321,7 +353,7 @@ const Home = () => {
               </motion.div>
             ))}
             <div className="carousel-dots">
-              {testimonialSnippets.map((_, i) => (
+              {displayTestimonials.map((_, i) => (
                 <button 
                   key={i} 
                   className={`dot ${i === activeTestimonial ? 'active' : ''}`}

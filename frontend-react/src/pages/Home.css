@@ -481,10 +481,10 @@
 }
 
 .testimonial-carousel {
-    max-width: 680px;
+    max-width: 520px;
     margin: 3rem auto 0;
     position: relative;
-    min-height: 220px;
+    min-height: 190px;
 }
 
 .testimonial-slide {
@@ -508,10 +508,10 @@
 }
 
 .t-text {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-style: italic;
     color: var(--dark);
-    line-height: 1.8;
+    line-height: 1.7;
 }
 
 .t-author {
@@ -547,7 +547,7 @@
     display: flex;
     justify-content: center;
     gap: 8px;
-    margin-top: 14rem;
+    margin-top: 10.5rem;
 }
 
 .dot {

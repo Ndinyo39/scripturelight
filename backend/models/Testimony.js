@@ -27,6 +27,14 @@ const Testimony = sequelize.define('Testimony', {
         type: DataTypes.INTEGER,
         defaultValue: 0
     },
+    praiseCount: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    prayCount: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
     status: {
         type: DataTypes.ENUM('pending', 'approved', 'rejected'),
         defaultValue: 'pending'

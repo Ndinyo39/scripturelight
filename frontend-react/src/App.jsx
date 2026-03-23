@@ -1,26 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import Dashboard from './pages/Dashboard';
-import BibleReader from './pages/BibleReader';
-import StudyPlans from './pages/StudyPlans';
-import Community from './pages/Community';
-import Testimonies from './pages/Testimonies';
-import Support from './pages/Support';
-import Admin from './pages/Admin';
 import PWAInstallBanner from './components/PWAInstallBanner';
-import Profile from './pages/Profile';
 import { api } from './api';
-import UserProfile from './pages/UserProfile';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import Footer from './components/Footer';
 import OnlineNotifier from './components/OnlineNotifier';
+
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const BibleReader = lazy(() => import('./pages/BibleReader'));
+const StudyPlans = lazy(() => import('./pages/StudyPlans'));
+const Community = lazy(() => import('./pages/Community'));
+const Testimonies = lazy(() => import('./pages/Testimonies'));
+const Support = lazy(() => import('./pages/Support'));
+const Admin = lazy(() => import('./pages/Admin'));
+const Profile = lazy(() => import('./pages/Profile'));
+const UserProfile = lazy(() => import('./pages/UserProfile'));
 
 function App() {
   const [stats, setStats] = useState({ users: 0 });
@@ -42,6 +43,11 @@ function App() {
         <PWAInstallBanner />
         <Navbar />
         <OnlineNotifier />
+        <Suspense fallback={
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+            <div className="animate-spin" style={{ width: 40, height: 40, borderRadius: '50%', border: '4px solid var(--secondary)', borderTopColor: 'transparent' }} />
+          </div>
+        }>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route 
@@ -121,6 +127,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
+        </Suspense>
         
         <Footer stats={stats} />
       </div>

@@ -29,7 +29,10 @@ const bookStorage = new CloudinaryStorage({
   },
 });
 
-const uploadProfile = multer({ storage: profileStorage });
+const uploadProfile = multer({ 
+  storage: profileStorage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
 const uploadBook = multer({ storage: bookStorage });
 
 module.exports = {

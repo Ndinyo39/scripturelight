@@ -533,31 +533,82 @@
     padding-left: 12px;
 }
 
-.verse-bookmark-btn {
+.verse-bookmark-btn { display: none; } /* keep temporarily if used elsewhere */
+
+.verse-action-bar {
     position: absolute;
     right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 100%;
+    margin-top: -10px;
     background: white;
-    border: 1px solid #ddd;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    border: 1px solid var(--gray-lighter);
+    border-radius: 50px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
+    gap: 4px;
+    padding: 6px 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+.theme-dark .verse-action-bar {
+    background: #2a2a40;
+    border-color: #3f3f5a;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+.theme-sepia .verse-action-bar {
+    background: #fffdf7;
+    border-color: #e5d8b8;
+}
+
+.verse-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
     color: var(--gray);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 30px;
+    cursor: pointer;
     transition: 0.2s;
 }
 
-.verse-bookmark-btn.bookmarked {
-    color: var(--primary);
-    border-color: var(--primary);
+.verse-action-btn:hover {
+    background: var(--gray-lightest);
+    color: var(--dark);
 }
 
-.verse-bookmark-btn:hover {
-    background: var(--primary);
-    color: white;
+.theme-dark .verse-action-btn:hover { background: #3f3f5a; color: white; }
+.theme-sepia .verse-action-btn:hover { background: #e5d8b8; color: #5f4b32; }
+
+.verse-action-btn.active {
+    color: var(--primary);
+}
+
+.color-picker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 10px;
+    border-left: 1px solid var(--gray-lighter);
+    margin-left: 4px;
+}
+
+.theme-dark .color-picker { border-color: #3f3f5a; }
+.theme-sepia .color-picker { border-color: #e5d8b8; }
+
+.color-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+}
+
+.color-dot:hover {
+    transform: scale(1.15);
 }

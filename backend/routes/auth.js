@@ -10,6 +10,24 @@ const { sequelize } = require('../config/database');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const rateLimit = require('express-rate-limit');
+
+// ── Rate Limiters ─────────────────────────────────────────────────────
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10,
+    message: { message: 'Too many requests from this IP, please try again after 15 minutes' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { message: 'Too many login attempts from this IP, please try again after 15 minutes' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 
 // ── Email transporter ─────────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
@@ -23,7 +41,7 @@ const transporter = nodemailer.createTransport({
 const { uploadProfile, cloudinary } = require('../config/cloudinary');
 
 // Register user
-router.post('/register', [
+router.post('/register', authLimiter, [
     body('name').not().isEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Valid email is required'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
@@ -61,7 +79,7 @@ router.post('/register', [
 });
 
 // Login user
-router.post('/login', [
+router.post('/login', loginLimiter, [
     body('email').isEmail().withMessage('Valid email is required'),
     body('password').exists().withMessage('Password is required')
 ], async (req, res) => {
@@ -221,7 +239,7 @@ router.get('/me', auth, async (req, res) => {
 });
 
 // ── Forgot Password ───────────────────────────────────────────────────
-router.post('/forgot-password', [
+router.post('/forgot-password', authLimiter, [
     body('email').isEmail().withMessage('Valid email is required')
 ], async (req, res) => {
     try {

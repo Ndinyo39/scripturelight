@@ -12,11 +12,30 @@ import {
   Info,
   X,
   Lock,
-  Loader2
+  Loader2,
+  Check
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
 import './StudyPlans.css';
+
+const Toast = ({ message, onDone }) => {
+  useEffect(() => {
+    const t = setTimeout(onDone, 2800);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <motion.div
+      className="toast-notification"
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 40 }}
+    >
+      <Check size={18} color="var(--success)" /> {message}
+    </motion.div>
+  );
+};
 
 const StudyPlans = () => {
   const { user, updateUser } = useAuth();
@@ -25,6 +44,7 @@ const StudyPlans = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState('');
   const [userStats, setUserStats] = useState({
     streak: 0,
     completedPlans: 0,
@@ -103,14 +123,16 @@ const StudyPlans = () => {
     return matchesCategory && matchesSearch;
   });
 
+  const showToast = (msg) => setToast(msg);
+
   const handleStartPlan = async (id) => {
     try {
       const updatedUser = await api.post('/study/join', { planId: id });
       updateUser(updatedUser);
-      alert('Plan joined successfully! Check your dashboard for progress.');
+      showToast('Plan joined successfully! Check your dashboard for progress.');
     } catch (err) {
       console.error('Failed to join plan:', err);
-      alert(err.message || 'Failed to join study plan. Please try again.');
+      showToast(err.message || 'Failed to join study plan. Please try again.');
     }
   };
 
@@ -196,6 +218,10 @@ const StudyPlans = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   className={`plan-card ${isActive ? 'active' : ''}`}
+                  style={{ 
+                    border: isActive ? `2px solid ${color}` : '1px solid var(--gray-lighter)',
+                    boxShadow: isActive ? `0 12px 32px ${color}30` : ''
+                  }}
                 >
                   <div className="plan-header">
                     <div className="plan-title-wrapper">
@@ -297,19 +323,30 @@ const StudyPlans = () => {
                 
                 <div className="reading-highlight">
                   <h4 className="mb-2">Plan Overview</h4>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ color: 'var(--gray)' }}>
-                      Complete this plan to earn the "{selectedPlan.title} Enthusiast" badge!
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ color: 'var(--dark)' }}>
+                      Complete this plan to earn the <strong>"{selectedPlan.title} Enthusiast"</strong> badge!
                     </div>
-                    <button className="btn-primary btn-sm" style={{ background: selectedPlan.color || '#4a6fa5' }} onClick={() => handleStartPlan(selectedPlan.id)}>
-                      <Play size={16} fill="white" /> Join Plan
-                    </button>
+                    {user?.activePlanId !== selectedPlan.id && user?.activePlan?.id !== selectedPlan.id ? (
+                      <button className="btn-primary btn-sm" style={{ background: selectedPlan.color || '#4a6fa5' }} onClick={() => { handleStartPlan(selectedPlan.id); setSelectedPlan(null); }}>
+                        <Play size={16} fill="white" /> Join Plan
+                      </button>
+                    ) : (
+                      <Link to="/bible" className="btn-primary btn-sm" style={{ background: selectedPlan.color || '#4a6fa5', textDecoration: 'none' }}>
+                        <BookOpen size={16} /> Continue Reading
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
             </motion.div>
           </>
         )}
+      </AnimatePresence>
+
+      {/* Toast notification */}
+      <AnimatePresence>
+        {toast && <Toast message={toast} onDone={() => setToast('')} />}
       </AnimatePresence>
     </div>
   );

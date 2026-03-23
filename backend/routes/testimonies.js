@@ -63,13 +63,21 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
-// Amen (increment amenCount)
-router.post('/:id/amen', auth, async (req, res) => {
+// Generic React (increment amen/praise/pray)
+router.post('/:id/react', auth, async (req, res) => {
     try {
+        const { type } = req.body;
+        const column = `${type}Count`;
+        
+        if (!['amenCount', 'praiseCount', 'prayCount'].includes(column)) {
+            return res.status(400).json({ message: 'Invalid reaction type' });
+        }
+
         const testimony = await Testimony.findByPk(req.params.id);
         if (!testimony) return res.status(404).json({ message: 'Testimony not found' });
         
-        await testimony.increment('amenCount');
+        await testimony.increment(column);
+        
         const updatedTestimony = await Testimony.findByPk(testimony.id, {
             include: [{
                 model: User,

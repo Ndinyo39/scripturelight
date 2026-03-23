@@ -20,7 +20,12 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+const helmet = require('helmet');
+const compression = require('compression');
+
 // === 2. CORS & MIDDLEWARE ===
+app.use(helmet());
+app.use(compression());
 app.use(cors({
     origin: true,
     credentials: true

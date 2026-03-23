@@ -15,10 +15,35 @@ import {
   RefreshCw,
   AlignLeft,
   Menu,
-  X
+  X,
+  Copy
 } from 'lucide-react';
 import { api } from '../api';
 import './BibleReader.css';
+
+const Toast = ({ message, onDone }) => {
+  useEffect(() => {
+    const t = setTimeout(onDone, 2800);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <motion.div
+      className="toast-notification"
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 40 }}
+      style={{
+        position: 'fixed', bottom: '2rem', left: '50%', transform: 'translateX(-50%)',
+        background: 'var(--dark)', color: 'white', padding: '0.85rem 1.75rem',
+        borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '12px',
+        boxShadow: '0 12px 32px rgba(0,0,0,0.25)', zIndex: 10000, fontWeight: 500
+      }}
+    >
+      <Check size={18} color="var(--success)" /> {message}
+    </motion.div>
+  );
+};
 
 // ── Complete Bible data (all 66 books with correct chapter counts) ──
 const bibleData = {
@@ -70,10 +95,17 @@ const TRANSLATIONS = [
 ];
 
 const BibleReader = () => {
-  const [currentBook, setCurrentBook] = useState('John');
-  const [currentChapter, setCurrentChapter] = useState(3);
-  const [testament, setTestament] = useState('new');
-  const [translation, setTranslation] = useState('kjv');
+  const [currentBook, setCurrentBook] = useState(() => localStorage.getItem('lastReadBook') || 'John');
+  const [currentChapter, setCurrentChapter] = useState(() => parseInt(localStorage.getItem('lastReadChapter')) || 3);
+  const [testament, setTestament] = useState(() => bibleData.oldTestament.includes(localStorage.getItem('lastReadBook')) ? 'old' : 'new');
+  const [translation, setTranslation] = useState(() => localStorage.getItem('lastReadTranslation') || 'kjv');
+  const [fontFamily, setFontFamily] = useState(() => localStorage.getItem('bibleFontFamily') || 'sans-serif');
+  const [toast, setToast] = useState('');
+  const [coloredHighlights, setColoredHighlights] = useState(() => {
+    const saved = localStorage.getItem('bibleHighlights');
+    return saved ? JSON.parse(saved) : {};
+  });
+  const COLORS = ['#ffeaaa', '#c5e1a5', '#b3e5fc', '#f48fb1']; // yellow, green, blue, pink
   const [searchQuery, setSearchQuery] = useState('');
   const [verses, setVerses] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -87,16 +119,45 @@ const BibleReader = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const contentRef = useRef(null);
 
-  // Close sidebar on escape key
+  // Handle Load Verses & Save LocalStorage
   useEffect(() => {
-    const handleKey = (e) => { if (e.key === 'Escape') setSidebarOpen(false); };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, []);
-
-  useEffect(() => {
+    localStorage.setItem('lastReadBook', currentBook);
+    localStorage.setItem('lastReadChapter', currentChapter.toString());
+    localStorage.setItem('lastReadTranslation', translation);
     loadVerses();
   }, [currentBook, currentChapter, translation]);
+
+  // Save color highlights
+  useEffect(() => {
+    localStorage.setItem('bibleHighlights', JSON.stringify(coloredHighlights));
+  }, [coloredHighlights]);
+
+  // Save font family
+  useEffect(() => {
+    localStorage.setItem('bibleFontFamily', fontFamily);
+  }, [fontFamily]);
+
+  const showToast = (msg) => setToast(msg);
+
+  const copyVerse = (v) => {
+    const text = `${currentBook} ${currentChapter}:${v.verse} - ${v.text}`;
+    navigator.clipboard.writeText(text);
+    showToast('Verse copied to clipboard!');
+    setHighlightedVerse(null);
+  };
+
+  const toggleColorHighlight = (verseNum, color) => {
+    const key = `${currentBook}-${currentChapter}-${verseNum}`;
+    setColoredHighlights(prev => {
+      const next = { ...prev };
+      if (next[key] === color) {
+        delete next[key];
+      } else {
+        next[key] = color;
+      }
+      return next;
+    });
+  };
 
   const loadVerses = async (forceTranslation = null) => {
     setLoading(true);
@@ -162,7 +223,7 @@ const BibleReader = () => {
   const books = testament === 'old' ? bibleData.oldTestament : bibleData.newTestament;
   const totalChapters = bibleData.chapters[currentBook] || 1;
 
-  const goToPrevChapter = () => {
+  const goToPrevChapter = useCallback(() => {
     if (currentChapter > 1) {
       setCurrentChapter(c => c - 1);
     } else {
@@ -176,9 +237,9 @@ const BibleReader = () => {
         setTestament(bibleData.oldTestament.includes(prevBook) ? 'old' : 'new');
       }
     }
-  };
+  }, [currentBook, currentChapter]);
 
-  const goToNextChapter = () => {
+  const goToNextChapter = useCallback(() => {
     if (currentChapter < totalChapters) {
       setCurrentChapter(c => c + 1);
     } else {
@@ -192,7 +253,20 @@ const BibleReader = () => {
         setTestament(bibleData.oldTestament.includes(nextBook) ? 'old' : 'new');
       }
     }
-  };
+  }, [currentBook, currentChapter, totalChapters]);
+
+  // Keyboard events
+  useEffect(() => {
+    const handleKey = (e) => { 
+      if (e.key === 'Escape') setSidebarOpen(false); 
+      if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        if (e.key === 'ArrowLeft') goToPrevChapter();
+        if (e.key === 'ArrowRight') goToNextChapter();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [goToPrevChapter, goToNextChapter]);
 
   const sidebarContent = (
     <>
@@ -301,16 +375,26 @@ const BibleReader = () => {
             {/* Toolbar */}
             <div className="reader-toolbar">
               <div className="d-flex align-items-center gap-3 flex-wrap" style={{ minWidth: 0, maxWidth: '100%' }}>
-                {/* Translation Select */}
+                {/* Translation & Font Select */}
                 <select
                   value={translation}
                   onChange={(e) => setTranslation(e.target.value)}
                   disabled={loading}
-                  style={{ fontSize: '0.85rem', padding: '0.5rem 0.75rem', maxWidth: '100%', minWidth: 0, flex: '1 1 auto' }}
+                  style={{ fontSize: '0.85rem', padding: '0.5rem 0.75rem', maxWidth: '100%', minWidth: 0, flex: '1 1 auto', border: '1px solid var(--gray-lighter)', borderRadius: '8px' }}
                 >
                   {TRANSLATIONS.map(t => (
                     <option key={t.label} value={t.value}>{t.label}</option>
                   ))}
+                </select>
+
+                <select
+                  value={fontFamily}
+                  onChange={(e) => setFontFamily(e.target.value)}
+                  style={{ fontSize: '0.85rem', padding: '0.5rem 0.75rem', border: '1px solid var(--gray-lighter)', borderRadius: '8px', cursor: 'pointer', background: 'transparent', color: 'var(--gray)' }}
+                >
+                  <option value="sans-serif">Sans-Serif</option>
+                  <option value="serif">Serif (Classic)</option>
+                  <option value="monospace">Monospace</option>
                 </select>
 
                 {/* Theme Buttons */}
@@ -365,7 +449,11 @@ const BibleReader = () => {
           </div>
 
           {/* Verses */}
-          <div className={`chapter-content theme-${theme}`} ref={contentRef}>
+          <div 
+            className={`chapter-content theme-${theme}`} 
+            ref={contentRef}
+            style={{ fontFamily: fontFamily === 'serif' ? 'Georgia, "Times New Roman", serif' : fontFamily === 'monospace' ? '"Courier New", monospace' : 'system-ui, -apple-system, sans-serif' }}
+          >
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${currentBook}-${currentChapter}-${translation}`}
@@ -393,10 +481,13 @@ const BibleReader = () => {
                     <p>Select a book and chapter to begin reading.</p>
                   </div>
                 )}
-                {!loading && !error && verses.map(v => (
+                {!loading && !error && verses.map(v => {
+                  const highlightColor = coloredHighlights[`${currentBook}-${currentChapter}-${v.verse}`];
+                  return (
                   <div
                     key={v.verse}
                     className={`verse-container ${highlightedVerse === v.verse ? 'highlighted' : ''}`}
+                    style={{ backgroundColor: highlightColor || 'transparent' }}
                     onClick={() => setHighlightedVerse(prev => prev === v.verse ? null : v.verse)}
                   >
                     <p className="verse" style={{ fontSize: `${fontSize}rem` }}>
@@ -404,18 +495,32 @@ const BibleReader = () => {
                       {v.text}
                     </p>
                     {highlightedVerse === v.verse && (
-                      <motion.button
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className={`verse-bookmark-btn ${isBookmarked(v.verse) ? 'bookmarked' : ''}`}
-                        onClick={(e) => { e.stopPropagation(); toggleBookmark(v.verse); }}
-                        title={isBookmarked(v.verse) ? 'Remove Bookmark' : 'Bookmark Verse'}
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        className="verse-action-bar"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <Bookmark size={14} fill={isBookmarked(v.verse) ? 'currentColor' : 'none'} />
-                      </motion.button>
+                        <button className="verse-action-btn" onClick={() => copyVerse(v)} title="Copy Verse text">
+                          <Copy size={14} /> Copy
+                        </button>
+                        <button className={`verse-action-btn ${isBookmarked(v.verse) ? 'active' : ''}`} onClick={() => toggleBookmark(v.verse)} title="Bookmark">
+                          <Bookmark size={14} fill={isBookmarked(v.verse) ? 'var(--primary)' : 'none'} color={isBookmarked(v.verse) ? 'var(--primary)' : 'currentColor'} /> Bookmark
+                        </button>
+                        <div className="color-picker">
+                           {COLORS.map(c => (
+                             <div 
+                               key={c} 
+                               className="color-dot" 
+                               style={{ background: c, border: highlightColor === c ? '2px solid var(--dark)' : '1px solid #ddd' }}
+                               onClick={() => toggleColorHighlight(v.verse, c)}
+                             />
+                           ))}
+                        </div>
+                      </motion.div>
                     )}
                   </div>
-                ))}
+                )})}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -435,6 +540,10 @@ const BibleReader = () => {
           </div>
         </main>
       </div>
+
+      <AnimatePresence>
+        {toast && <Toast message={toast} onDone={() => setToast('')} />}
+      </AnimatePresence>
     </div>
   );
 };

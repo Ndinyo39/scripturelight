@@ -38,7 +38,7 @@ const Toast = ({ message, onDone }) => {
 
 const TRUNCATE_LIMIT = 320;
 
-const TestimonyCard = ({ t, onAmen, onShare, onToggleComments, isExpanded, comments, commentInput, onCommentChange, onCommentSubmit, getRandomColor }) => {
+const TestimonyCard = ({ t, onReact, onShare, onToggleComments, isExpanded, comments, commentInput, onCommentChange, onCommentSubmit, getRandomColor }) => {
   const [readMore, setReadMore] = useState(false);
   const isLong = t.content?.length > TRUNCATE_LIMIT;
   const displayContent = isLong && !readMore ? t.content.slice(0, TRUNCATE_LIMIT) + '…' : t.content;
@@ -90,23 +90,27 @@ const TestimonyCard = ({ t, onAmen, onShare, onToggleComments, isExpanded, comme
         </div>
       )}
 
-      <div className="amen-section">
-        <button
-          className={`amen-btn-big ${t.isAmened ? 'active' : ''}`}
-          onClick={() => onAmen(t.id)}
-        >
-          <Heart size={20} />
-          <span>Amen</span>
-          <span className="count">{t.amenCount || 0}</span>
-        </button>
-        <button className="action-btn" onClick={() => onToggleComments(t.id)}>
-          <MessageCircle size={20} />
-          <span>Comments ({t.commentsCount || comments?.length || 0})</span>
-        </button>
-        <button className="action-btn" onClick={handleShare}>
-          <Share2 size={20} />
-          <span>Share</span>
-        </button>
+      <div className="amen-section" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '6px', flex: 1 }}>
+          <button className={`amen-btn-big ${t.isAmened ? 'active' : ''}`} onClick={() => onReact(t.id, 'amen')} title="Amen" style={{ padding: '6px 12px' }}>
+            <Heart size={18} /> <span className="count">{t.amenCount || 0}</span>
+          </button>
+          <button className={`amen-btn-big ${t.isPraiseed ? 'active' : ''}`} onClick={() => onReact(t.id, 'praise')} title="Praise" style={{ padding: '6px 12px' }}>
+            <Sparkles size={18} /> <span className="count">{t.praiseCount || 0}</span>
+          </button>
+          <button className={`amen-btn-big ${t.isPrayed ? 'active' : ''}`} onClick={() => onReact(t.id, 'pray')} title="Praying" style={{ padding: '6px 12px' }}>
+            <span style={{ fontSize: '16px', lineHeight: 1 }}>🙏</span> <span className="count">{t.prayCount || 0}</span>
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button className="action-btn" onClick={() => onToggleComments(t.id)}>
+            <MessageCircle size={18} />
+            <span>({t.commentsCount || comments?.length || 0})</span>
+          </button>
+          <button className="action-btn" onClick={handleShare}>
+            <Share2 size={18} />
+          </button>
+        </div>
       </div>
 
       {/* Comments Section */}
@@ -222,14 +226,24 @@ const Testimonies = () => {
     { id: 'family', label: '👨‍👩‍👧 Family' }
   ];
 
-  const handleAmen = async (id) => {
+  const handleReact = async (id, type) => {
     try {
-      const updatedTestimony = await api.post(`/testimonies/${id}/amen`);
-      setTestimonies(testimonies.map(t =>
-        t.id === id ? { ...t, amenCount: updatedTestimony.amenCount, isAmened: !t.isAmened } : t
-      ));
+      const updatedTestimony = await api.post(`/testimonies/${id}/react`, { type });
+      setTestimonies(testimonies.map(t => {
+        if (t.id === id) {
+          const uiStateKey = `is${type.charAt(0).toUpperCase() + type.slice(1)}ed`;
+          return {
+            ...t,
+            amenCount: updatedTestimony.amenCount,
+            praiseCount: updatedTestimony.praiseCount,
+            prayCount: updatedTestimony.prayCount,
+            [uiStateKey]: !t[uiStateKey]
+          };
+        }
+        return t;
+      }));
     } catch (err) {
-      showToast('Please log in to send an Amen! 🙏');
+      showToast('Please log in to react! 🙏');
     }
   };
 
@@ -340,7 +354,7 @@ const Testimonies = () => {
               <TestimonyCard
                 key={t.id}
                 t={t}
-                onAmen={handleAmen}
+                onReact={handleReact}
                 onShare={handleShare}
                 onToggleComments={toggleComments}
                 isExpanded={expandedComments[t.id]}
