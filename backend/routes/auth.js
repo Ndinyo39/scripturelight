@@ -122,9 +122,14 @@ router.post('/login', loginLimiter, [
             }
         };
 
+        if (!process.env.JWT_SECRET) {
+            console.error('FATAL ERROR: JWT_SECRET is not defined.');
+            return res.status(500).json({ message: 'Server configuration error' });
+        }
+
         jwt.sign(
             payload,
-            process.env.JWT_SECRET || 'your_jwt_secret',
+            process.env.JWT_SECRET,
             { expiresIn: '7d' },
             (err, token) => {
                 if (err) throw err;
@@ -206,6 +211,10 @@ router.get('/me', auth, async (req, res) => {
                     [
                         sequelize.literal(`(SELECT COUNT(*) FROM Comments WHERE userId = User.id)`),
                         'commentsCount'
+                    ],
+                    [
+                        sequelize.literal(`(SELECT SUM(viewCount) FROM CommunityPosts WHERE userId = User.id)`),
+                        'totalViewsCount'
                     ]
                 ]
             },
@@ -229,6 +238,7 @@ router.get('/me', auth, async (req, res) => {
             postsCount: user.get('postsCount'),
             testimoniesCount: user.get('testimoniesCount'),
             commentsCount: user.get('commentsCount'),
+            totalViewsCount: user.get('totalViewsCount') || 0,
             activePlan: user.activePlan ?? null,
             createdAt: user.createdAt,
         });

@@ -28,6 +28,19 @@ const Dashboard = () => {
     const [latestBooks, setLatestBooks] = useState([]);
     const [dailyVerse, setDailyVerse] = useState({ text: "For I know the plans I have for you...", ref: "Jeremiah 29:11" });
     const [highlights, setHighlights] = useState([]);
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1 }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 30 },
+        show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } }
+    };
   
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -62,7 +75,7 @@ const Dashboard = () => {
   const stats = [
     { label: "Chapters Read", value: bibleStats.totalChapters || 0, icon: <BookOpen />, color: "#4a6fa5" },
     { label: "Hours with God", value: (bibleStats.totalMinutes / 60).toFixed(1), icon: <Clock />, color: "#2a9d8f" },
-    { label: "Prayers Shared", value: userData.postsCount || 0, icon: <MessageSquare />, color: "#e9c46a" },
+    { label: "Community Reach", value: userData.totalViewsCount || 0, icon: <Star />, color: "#e9c46a" },
     { label: "Testimonies", value: userData.testimoniesCount || 0, icon: <Star />, color: "#dc3545" }
   ];
 
@@ -117,23 +130,31 @@ const Dashboard = () => {
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="stats-grid">
+      <motion.div 
+        className="stats-grid"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
         {stats.map((stat, index) => (
           <motion.div 
             key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
+            variants={itemVariants}
             className="stat-card"
           >
-            <div className="stat-icon" style={{ color: stat.color }}>{stat.icon}</div>
+            <div className="stat-icon" style={{ color: stat.color, background: `${stat.color}15` }}>{stat.icon}</div>
             <div className="stat-value">{stat.value}</div>
             <div className="stat-label">{stat.label}</div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      <div className="dashboard-grid">
+      <motion.div 
+        className="dashboard-grid"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
         {/* Left Column */}
         <div className="dash-col">
           {/* Today's Reading */}
@@ -179,7 +200,11 @@ const Dashboard = () => {
                   <div className="plan-percent">0%</div>
                 </div>
               )) : (
-                <p className="text-center p-3 text-muted">You haven't joined any plans yet.</p>
+                <div className="text-center p-4 d-flex flex-column align-items-center justify-content-center" style={{ minHeight: '150px', background: '#f8f9fa', borderRadius: '16px' }}>
+                  <Bookmark size={40} color="rgba(74, 111, 165, 0.2)" className="mb-3" />
+                  <p className="text-muted mb-3" style={{ fontSize: '0.9rem', fontWeight: 500 }}>You haven't joined any plans yet.</p>
+                  <Link to="/study-plans" className="btn-primary" style={{ padding: '8px 20px', borderRadius: '24px', fontSize: '0.9rem' }}>Discover Plans</Link>
+                </div>
               )}
             </div>
           </div>
@@ -192,15 +217,22 @@ const Dashboard = () => {
             <h3>Weekly Reading</h3>
             <div style={{ width: '100%', height: 200, marginTop: '1.5rem' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#888' }} />
+                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorMins" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#1e3c72" stopOpacity={0.9}/>
+                      <stop offset="95%" stopColor="#2a5298" stopOpacity={0.4}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#edf2f7" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#a0aec0', fontWeight: 600 }} dy={10} />
                   <YAxis hide />
                   <Tooltip 
-                    cursor={{ fill: 'transparent' }}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                    cursor={{ fill: 'rgba(0,0,0,0.02)' }}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 600 }}
+                    itemStyle={{ color: '#1e3c72' }}
                   />
-                  <Bar dataKey="mins" fill="#4a6fa5" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="mins" fill="url(#colorMins)" radius={[8, 8, 0, 0]} barSize={32} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -269,7 +301,7 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

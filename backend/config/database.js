@@ -85,6 +85,7 @@ const connectDB = async () => {
         const shouldSync = String(process.env.SYNC_DB).trim() === 'true' || (process.env.NODE_ENV !== 'production' && String(process.env.SYNC_DB).trim() !== 'false');
         if (shouldSync) {
             console.log('Syncing database models...');
+            require('../models'); // Ensure models are registered BEFORE sync
             await sequelize.sync({ alter: true });
             try {
                 const seedData = require('./seed');

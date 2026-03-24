@@ -58,6 +58,19 @@ const Support = () => {
 
   const finalAmount = customAmount || selectedAmount;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, scale: 0.95, y: 15 },
+    show: { opacity: 1, scale: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } }
+  };
+
   const handleApprove = (data, actions) => {
     return actions.order.capture().then((details) => {
       setShowThanks(true);
@@ -131,10 +144,16 @@ const Support = () => {
             </button>
           </div>
 
-          <div className="amount-grid">
+          <motion.div 
+            className="amount-grid"
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+          >
             {SUPPORT_TIERS.map((tier) => (
-              <button 
+              <motion.button 
                 key={tier.amount}
+                variants={itemVariants}
                 className={`amount-btn ${selectedAmount === tier.amount && !customAmount ? 'active' : ''}`}
                 onClick={() => {
                   setSelectedAmount(tier.amount);
@@ -143,9 +162,9 @@ const Support = () => {
               >
                 ${tier.amount}
                 <span>{tier.label}</span>
-              </button>
+              </motion.button>
             ))}
-          </div>
+          </motion.div>
 
           <div className="custom-amount-wrapper">
             <span className="currency-symbol">$</span>
@@ -268,22 +287,25 @@ const Support = () => {
             </p>
           </div>
 
-          <div className="impact-grid">
+          <motion.div 
+            className="impact-grid"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-50px" }}
+          >
             {IMPACT_CARDS.map((card, idx) => (
               <motion.div 
                 key={idx}
                 className="impact-card"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
+                variants={itemVariants}
               >
                 <div className="impact-icon">{card.icon}</div>
                 <h3>{card.title}</h3>
                 <p className="text-muted">{card.description}</p>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           <div className="security-badges">
              {/* Simple text representations of logos for branding */}

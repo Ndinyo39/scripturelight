@@ -26,6 +26,7 @@ const bookStorage = new CloudinaryStorage({
   params: {
     folder: 'scripturelight/books',
     resource_type: 'raw', // for PDF, EPUB, etc.
+    allowed_formats: ['pdf', 'epub'],
   },
 });
 

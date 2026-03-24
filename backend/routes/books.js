@@ -28,8 +28,17 @@ router.get('/', async (req, res) => {
     }
 });
 
+const { uploadBook, cloudinary } = require('../config/cloudinary');
+const rateLimit = require('express-rate-limit');
+
+const uploadLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 10, // Limit each IP to 10 uploads per hour
+    message: { message: 'Upload limit reached, please try again later' }
+});
+
 // ── UPLOAD A BOOK ───────────────────────────────────────────────────
-router.post('/upload', auth, uploadBook.single('book'), async (req, res) => {
+router.post('/upload', auth, uploadLimiter, uploadBook.single('book'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: 'No file uploaded' });
