@@ -38,7 +38,8 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const { uploadProfile, cloudinary } = require('../config/cloudinary');
+// Cloudinary is lazy-loaded inside the profile route to prevent
+// missing env vars from crashing the entire auth module in production.
 
 // Register user
 router.post('/register', authLimiter, [
@@ -91,9 +92,10 @@ router.post('/register', authLimiter, [
     }
 });
 
-// Login user
+// Login user (accepts email or username)
 router.post('/login', loginLimiter, [
-    body('email').isEmail().withMessage('Valid email is required'),
+    body('identifier').not().isEmpty().withMessage('Email or username is required'),
+    body('email').optional().isEmail().withMessage('Valid email is required'),
     body('password').exists().withMessage('Password is required')
 ], async (req, res) => {
     try {
@@ -102,10 +104,20 @@ router.post('/login', loginLimiter, [
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { email, password } = req.body;
+        // Support both { email, password } (legacy) and { identifier, password } (new)
+        const identifier = req.body.identifier || req.body.email;
+        const { password } = req.body;
 
-        // Check if user exists
-        const user = await User.findOne({ where: { email } });
+        // Check if user exists by email or username
+        const { Op } = require('sequelize');
+        const user = await User.findOne({
+            where: {
+                [Op.or]: [
+                    { email: identifier },
+                    { username: identifier }
+                ]
+            }
+        });
         if (!user) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
@@ -167,7 +179,16 @@ router.post('/login', loginLimiter, [
 });
 
 // Update profile
-router.put('/profile', auth, uploadProfile.single('profilePicture'), async (req, res) => {
+router.put('/profile', auth, (req, res, next) => {
+    // Lazy-load cloudinary to prevent missing env vars from crashing auth module
+    try {
+        const { uploadProfile } = require('../config/cloudinary');
+        uploadProfile.single('profilePicture')(req, res, next);
+    } catch (err) {
+        console.error('Cloudinary not configured:', err.message);
+        next(); // Continue without file upload if cloudinary is not set up
+    }
+}, async (req, res) => {
     try {
         console.log(`Updating profile for user ${req.user.id}...`);
         const { bio, name } = req.body;

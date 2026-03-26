@@ -45,7 +45,7 @@ const AuthGraphic = () => (
 
 const Login = () => {
   const [activeTab, setActiveTab] = useState('email');
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isPending, setIsPending] = useState(false);
@@ -60,7 +60,7 @@ const Login = () => {
     setError('');
 
     try {
-      const data = await api.post('/auth/login', { email, password });
+      const data = await api.post('/auth/login', { identifier, password });
       login(data.user, data.token);
       navigate('/dashboard');
     } catch (err) {
@@ -128,14 +128,15 @@ const Login = () => {
 
           <form onSubmit={handleLogin} className="auth-form">
             <div className="form-group">
-              <input
-                type="email"
+            <input
+                type="text"
                 className="form-control"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder={activeTab === 'phone' ? 'Phone number' : 'Email or username'}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 required
-                id="login-email"
+                id="login-identifier"
+                autoComplete="username"
               />
             </div>
 
